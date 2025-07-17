@@ -1,12 +1,13 @@
 "use client"
 
 import { Popover, Transition } from "@headlessui/react"
-import { XMark } from "@medusajs/icons"
-import { Text, useToggleState } from "@medusajs/ui"
+import { ArrowRightMini, XMark } from "@medusajs/icons"
+import { clx, Text, useToggleState } from "@medusajs/ui"
 import { Fragment } from "react"
 
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import CountrySelect from "../country-select"
 
 const SideMenuItems = {
   Home: "/",
@@ -71,7 +72,7 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
                       })}
                     </ul>
                     <div className="flex flex-col gap-y-6">
-                      {/* <div
+                      <div
                         className="flex justify-between"
                         onMouseEnter={toggleState.open}
                         onMouseLeave={toggleState.close}
@@ -88,7 +89,7 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
                             toggleState.state ? "-rotate-90" : ""
                           )}
                         />
-                      </div> */}
+                      </div>
                       <Text className="flex justify-between txt-compact-small">
                         © {new Date().getFullYear()} ELYXM. All rights reserved.
                       </Text>
