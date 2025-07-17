@@ -82,17 +82,17 @@ export default async function Footer() {
               </div>
             )} */}
             <div className="flex flex-col gap-y-2" />
-            {collections && collections.length > 0 && (
+            {false && collections && collections.length > 0 && (
               <div className="flex flex-col gap-y-2">
                 <span className="txt-small-plus txt-ui-fg-base sm:text-right">
                   Cócteles
                 </span>
                 <ul
                   className={clx(
-                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small sm:text-right"
-                    // {
-                    //   "grid-cols-2": (collections?.length || 0) > 3,
-                    // }
+                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small sm:text-right",
+                    {
+                      "grid-cols-2": (collections?.length || 0) > 3,
+                    }
                   )}
                 >
                   {collections?.map((c) => (
@@ -105,72 +105,6 @@ export default async function Footer() {
                       </LocalizedClientLink>
                     </li>
                   ))}
-                  {/*                   
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href={`/collections/sbg-casa-luca`}
-                    >
-                      Casa Luca
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      Café SBG
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      SBG Santo Domingo
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      SBG Kitchen
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      SBG Casa de Campo
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      SBG Punta Cana
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      Shibuya Ichiban
-                    </LocalizedClientLink>
-                  </li>
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-ui-fg-base"
-                      href=""
-                    >
-                      Shibuya Casa de Campo
-                    </LocalizedClientLink>
-                  </li>
-                  */}
                 </ul>
               </div>
             )}
