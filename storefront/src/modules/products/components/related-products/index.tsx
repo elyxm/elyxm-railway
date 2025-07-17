@@ -1,7 +1,7 @@
-import Product from "../product-preview"
-import { getRegion } from "@lib/data/regions"
 import { getProductsList } from "@lib/data/products"
+import { getRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
+import Product from "../product-preview"
 
 type RelatedProductsProps = {
   product: HttpTypes.StoreProduct
@@ -23,7 +23,7 @@ export default async function RelatedProducts({
   const region = await getRegion(countryCode)
 
   if (!region) {
-  const queryParams: StoreProductParamsWithTags = {}
+    const queryParams: StoreProductParamsWithTags = {}
   }
 
   // edit this function to define your related products logic
@@ -59,10 +59,10 @@ export default async function RelatedProducts({
     <div className="product-page-constraint">
       <div className="flex flex-col items-center text-center mb-16">
         <span className="text-base-regular text-gray-600 mb-6">
-          Related products
+          Sip Something New
         </span>
         <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          You might also want to check out these products.
+          Let your palate explore a few more of our signature drinks.
         </p>
       </div>
 

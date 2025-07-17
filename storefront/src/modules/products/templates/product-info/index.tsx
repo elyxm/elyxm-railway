@@ -15,7 +15,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             href={`/collections/${product.collection.handle}`}
             className="text-medium text-ui-fg-muted hover:text-ui-fg-subtle"
           >
-            {product.collection.title}
+            {/* {product.collection.title} */}
+            {"< View All Cocktails"}
           </LocalizedClientLink>
         )}
         <Heading

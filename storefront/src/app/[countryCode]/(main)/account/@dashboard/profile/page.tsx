@@ -6,13 +6,13 @@ import ProfileEmail from "@modules/account/components/profile-email"
 import ProfileName from "@modules/account/components/profile-name"
 import ProfilePassword from "@modules/account/components/profile-password"
 
-import { notFound } from "next/navigation"
-import { listRegions } from "@lib/data/regions"
 import { getCustomer } from "@lib/data/customer"
+import { listRegions } from "@lib/data/regions"
+import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Profile",
-  description: "View and edit your Medusa Store profile.",
+  description: "View and edit your SBG profile.",
 }
 
 export default async function Profile() {
