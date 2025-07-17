@@ -4,10 +4,10 @@ import { Listbox, Transition } from "@headlessui/react"
 import { Fragment, useEffect, useMemo, useState } from "react"
 import ReactCountryFlag from "react-country-flag"
 
-import { StateType } from "@lib/hooks/use-toggle-state"
-import { useParams, usePathname } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
+import { StateType } from "@lib/hooks/use-toggle-state"
 import { HttpTypes } from "@medusajs/types"
+import { useParams, usePathname } from "next/navigation"
 
 type CountryOption = {
   country: string
@@ -69,7 +69,7 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
       >
         <Listbox.Button className="py-1 w-full">
           <div className="txt-compact-small flex items-start gap-x-2">
-            <span>Shipping to:</span>
+            <span>Currency:</span>
             {current && (
               <span className="txt-compact-small flex items-center gap-x-2">
                 <ReactCountryFlag
@@ -80,7 +80,7 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
                   }}
                   countryCode={current.country ?? ""}
                 />
-                {current.label}
+                {current.label} ({current.country === "US" ? "USD" : "DOP"})
               </span>
             )}
           </div>
