@@ -197,6 +197,7 @@ npm run docker:rebuild         # Rebuild and restart everything
 npm run db:status              # Check container status
 npm run db:shell               # Connect to PostgreSQL shell
 npm run db:backup              # Create timestamped backup
+npm run db:generate product     # Generate migrations for modules
 ```
 
 ### Development Workflow
@@ -253,10 +254,18 @@ npm run install:all           # Install all dependencies
 ### Schema Development
 
 1. Make changes to your data models
-2. Generate migrations: `cd backend && pnpm medusa db:generate`
-3. Apply locally: `pnpm medusa db:migrate`
-4. Test with seed data: `pnpm seed`
+2. Generate migrations: `npm run db:generate product order` (for changed modules)
+3. Apply locally: `cd backend && pnpm migrate`
+4. Test with seed data: `cd backend && pnpm seed`
 5. Deploy to production when ready
+
+#### About Medusa Migrations
+
+Medusa 2.0 generates migrations for **existing modules** when you modify their data models:
+
+- `npm run db:generate product` - Generates migrations for product module changes
+- `npm run db:generate order user` - Generates for multiple modules
+- Module names: `product`, `order`, `user`, `customer`, `cart`, `payment`, etc.
 
 ## 📁 Project Structure
 

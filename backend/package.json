@@ -15,6 +15,8 @@
   "scripts": {
     "build": "medusa build && node src/scripts/postBuild.js",
     "seed": "medusa exec ./src/scripts/seed.ts",
+    "migrate": "medusa db:migrate",
+    "generate": "medusa db:generate",
     "ib": "init-backend",
     "ib:local": "medusa db:migrate && pnpm seed",
     "start": "init-backend && cd .medusa/server && medusa start --verbose",

@@ -20,11 +20,15 @@
     "db:status": "docker-compose ps",
     "db:shell": "docker exec -it medusa-postgres-dev psql -U medusa_user -d medusa_dev",
     "db:backup": "docker exec medusa-postgres-dev pg_dump -U medusa_user medusa_dev > backup_$(date +%Y%m%d_%H%M%S).sql",
-    "db:migrate": "cd backend && npm run db:migrate && cd ../storefront && npm run db:migrate && cd ../backend && npm run seed && cd ../",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:storefront": "cd storefront && npm run dev",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:storefront\"",
-    "install:all": "npm install && cd backend && npm install && cd ../storefront && npm install"
+    "db:migrate:backend": "cd backend && pnpm migrate",
+    "db:migrate:storefront": "cd storefront && pnpm migrate",
+    "db:migrate": "pnpm db:migrate:backend && cd ../ && pnpm db:migrate:storefront",
+    "db:migrate:seed": "pnpm db:migrate && pnpm db:seed && cd ../",
+    "db:generate": "cd backend && pnpm generate",
+    "dev:backend": "cd backend && pnpm dev",
+    "dev:storefront": "cd storefront && pnpm dev",
+    "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev:storefront\"",
+    "install:all": "pnpm install && cd backend && pnpm install && cd ../storefront && pnpm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
