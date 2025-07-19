@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: medusa-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medusa_dev
+      POSTGRES_USER: medusa_user
+      POSTGRES_PASSWORD: medusa_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medusa_user -d medusa_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - medusa-network
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.5
+    container_name: medusa-meilisearch-dev
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: local_development_master_key_please_change_in_production
+      MEILI_NO_ANALYTICS: true
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - medusa-network
+
+volumes:
+  postgres_data:
+    driver: local
+  meilisearch_data:
+    driver: local
+
+networks:
+  medusa-network:
+    driver: bridge
