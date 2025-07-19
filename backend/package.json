@@ -27,9 +27,9 @@
     "@medusajs/admin-sdk": "latest",
     "@medusajs/cli": "latest",
     "@medusajs/core-flows": "latest",
+    "@medusajs/dashboard": "latest",
     "@medusajs/framework": "latest",
     "@medusajs/medusa": "latest",
-    "@medusajs/dashboard": "latest",
     "@medusajs/notification-sendgrid": "latest",
     "@medusajs/payment-stripe": "latest",
     "@medusajs/workflow-engine-redis": "latest",
@@ -44,7 +44,8 @@
     "minio": "^8.0.3",
     "pg": "^8.13.1",
     "resend": "4.0.1",
-    "ulid": "^2.3.0"
+    "ulid": "^2.3.0",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@medusajs/test-utils": "latest",
