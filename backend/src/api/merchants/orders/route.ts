@@ -1,6 +1,6 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { getOrdersListWorkflow } from "@medusajs/medusa/core-flows";
+import { getOrdersListWorkflow } from "../../../../node_modules/@medusajs/medusa/dist/core-flows";
 
 export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
