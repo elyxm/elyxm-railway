@@ -160,6 +160,7 @@ const medusaConfig = {
         ]
       : []),
     {
+      key: "marketplace",
       resolve: "./src/modules/marketplace",
     },
   ],
