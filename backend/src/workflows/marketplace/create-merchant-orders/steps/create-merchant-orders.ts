@@ -1,7 +1,7 @@
 import { CartLineItemDTO, InferTypeOf, LinkDefinition, OrderDTO } from "@medusajs/framework/types";
 import { Modules, promiseAll } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { cancelOrderWorkflow, createOrderWorkflow } from "@medusajs/medusa/core-flows";
+import { cancelOrderWorkflow, createOrderWorkflow } from "../../../../../node_modules/@medusajs/medusa/dist/core-flows";
 import { MARKETPLACE_MODULE } from "../../../../modules/marketplace";
 import Merchant from "../../../../modules/marketplace/models/merchant";
 import MarketplaceModuleService from "../../../../modules/marketplace/service";

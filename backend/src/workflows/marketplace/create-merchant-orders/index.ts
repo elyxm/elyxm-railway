@@ -4,7 +4,7 @@ import {
   createRemoteLinkStep,
   getOrderDetailWorkflow,
   useQueryGraphStep,
-} from "@medusajs/medusa/core-flows";
+} from "../../../../node_modules/@medusajs/medusa/dist/core-flows";
 import createMerchantOrdersStep from "./steps/create-merchant-orders";
 import groupMerchantItemsStep from "./steps/group-merchant-items";
 
