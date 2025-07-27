@@ -1,0 +1,40 @@
+{
+  "name": "elyxm-railway",
+  "version": "1.0.0",
+  "description": "Medusa 2.0 ecommerce platform with local development setup",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "storefront"
+  ],
+  "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:stop": "docker-compose stop",
+    "docker:restart": "docker-compose restart",
+    "docker:logs": "docker-compose logs -f",
+    "docker:logs:postgres": "docker-compose logs -f postgres",
+    "docker:logs:meilisearch": "docker-compose logs -f meilisearch",
+    "docker:clean": "docker-compose down -v --remove-orphans",
+    "docker:rebuild": "docker-compose down && docker-compose up -d --build",
+    "db:status": "docker-compose ps",
+    "db:shell": "docker exec -it medusa-postgres-dev psql -U medusa_user -d medusa_dev",
+    "db:backup": "docker exec medusa-postgres-dev pg_dump -U medusa_user medusa_dev > backup_$(date +%Y%m%d_%H%M%S).sql",
+    "db:migrate:backend": "cd backend && pnpm migrate",
+    "db:migrate:storefront": "cd storefront && pnpm migrate",
+    "db:migrate": "pnpm db:migrate:backend && cd ../ && pnpm db:migrate:storefront",
+    "db:migrate:seed": "pnpm db:migrate && pnpm db:seed && cd ../",
+    "db:generate": "cd backend && pnpm generate",
+    "dev:backend": "cd backend && pnpm dev",
+    "dev:storefront": "cd storefront && pnpm dev",
+    "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev:storefront\"",
+    "install:all": "pnpm install && cd backend && pnpm install && cd ../storefront && pnpm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.10.0"
+}

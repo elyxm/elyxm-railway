@@ -29,8 +29,13 @@
   "exclude": [
     "**/__tests__",
     "**/__fixtures__",
+    "**/*.spec.js",
+    "**/*.spec.ts",
     "node_modules",
     "build",
-    ".cache"
+    ".cache",
+    "dist",
+    "tests",
+    ".eslintrc.js"
   ]
 }

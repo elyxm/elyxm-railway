@@ -355,8 +355,14 @@ export async function placeOrder() {
     throw new Error("No existing cart found when placing an order")
   }
 
-  const cartRes = await sdk.store.cart
-    .complete(cartId, {}, getAuthHeaders())
+  const cartRes = await sdk.client
+    .fetch<HttpTypes.StoreCompleteCartResponse>(
+      `/store/carts/${cartId}/complete-merchant`,
+      {
+        method: "POST",
+        headers: getAuthHeaders(),
+      }
+    )
     .then((cartRes) => {
       revalidateTag("cart")
       return cartRes
