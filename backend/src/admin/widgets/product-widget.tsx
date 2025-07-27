@@ -1,7 +1,9 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
-import { AdminProduct, DetailWidgetProps } from "@medusajs/framework/types";
+import { AdminProduct, AdminProductVariant, DetailWidgetProps } from "@medusajs/framework/types";
 import { Container, Heading } from "@medusajs/ui";
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { sdk } from "../lib/sdk";
 
 const Widget = ({ data: product }: DetailWidgetProps<AdminProduct>) => {
   console.log("product", product);
@@ -121,11 +123,24 @@ type ProductVariantsProps = {
 const ProductVariants: React.FC<ProductVariantsProps> = (props) => {
   const { productId } = props;
 
-  const listRenderer = (variants: string[]) => {
-    return variants.map((variant) => <li key={variant}>{variant}</li>);
+  const { data, isLoading } = useQuery({
+    queryKey: ["product-variants", productId],
+    queryFn: () => sdk.admin.product.listVariants(productId, { fields: "id,title" }),
+  });
+
+  const listRenderer = (variants: AdminProductVariant[]) => {
+    return variants.map((variant) => <li key={variant.id}>{variant.title}</li>);
   };
 
-  return <SectionList heading="Variants" items={[productId]} listRenderer={listRenderer} />;
+  if (isLoading) {
+    return (
+      <Section heading="Variants">
+        <span>Loading...</span>
+      </Section>
+    );
+  }
+
+  return <SectionList heading="Variants" items={data?.variants} listRenderer={listRenderer} />;
 };
 
 /* SHARED COMPONENTS */
