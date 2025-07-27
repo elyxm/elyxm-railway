@@ -3,6 +3,7 @@ import { AdminProduct, AdminProductVariant, DetailWidgetProps } from "@medusajs/
 import { Container, Heading } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 import { sdk } from "../lib/sdk";
 
 const Widget = ({ data: product }: DetailWidgetProps<AdminProduct>) => {
@@ -129,7 +130,11 @@ const ProductVariants: React.FC<ProductVariantsProps> = (props) => {
   });
 
   const listRenderer = (variants: AdminProductVariant[]) => {
-    return variants.map((variant) => <li key={variant.id}>{variant.title}</li>);
+    return variants.map((variant) => (
+      <li key={variant.id}>
+        <Link to={`/products/${productId}/variants/${variant.id}`}>{variant.title}</Link>
+      </li>
+    ));
   };
 
   if (isLoading) {
