@@ -1,7 +1,6 @@
 import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
-import { setAuthAppMetadataStep, useQueryGraphStep } from "@medusajs/medusa/core-flows";
-import createMerchantStep from "./steps/create-merchant";
-import createMerchantAdminStep from "./steps/create-merchant-admin";
+import { setAuthAppMetadataStep, useQueryGraphStep } from "../../../../node_modules/@medusajs/medusa/dist/core-flows";
+import { createMerchantAdminStep, createMerchantStep } from "./steps";
 
 export type CreateMerchantWorkflowInput = {
   name: string;

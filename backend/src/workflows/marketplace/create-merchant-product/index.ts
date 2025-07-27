@@ -1,8 +1,12 @@
 import { CreateProductWorkflowInputDTO } from "@medusajs/framework/types";
 import { Modules } from "@medusajs/framework/utils";
 import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
-import { createProductsWorkflow, createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows";
 import { MARKETPLACE_MODULE } from "modules/marketplace";
+import {
+  createProductsWorkflow,
+  createRemoteLinkStep,
+  useQueryGraphStep,
+} from "../../../../node_modules/@medusajs/medusa/dist/core-flows";
 
 type WorkflowInput = {
   merchant_admin_id: string;
