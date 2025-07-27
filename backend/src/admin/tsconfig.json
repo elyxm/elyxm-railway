@@ -1,5 +1,11 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM"],
+    "types": ["vite/client"]
+  },
   "include": ["."],
   "exclude": ["**/*.spec.js"]
 }
