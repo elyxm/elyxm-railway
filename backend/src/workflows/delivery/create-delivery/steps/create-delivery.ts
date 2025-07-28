@@ -1,7 +1,7 @@
 import { StepResponse, createStep } from "@medusajs/workflows-sdk";
-import { DELIVERY_MODULE } from "@modules/delivery";
-import DeliveryModuleService from "@modules/delivery/service";
-import { DeliveryDTO } from "@modules/delivery/types/common";
+import { DELIVERY_MODULE } from "../../../../modules/delivery";
+import DeliveryModuleService from "../../../../modules/delivery/service";
+import { DeliveryDTO } from "../../../../modules/delivery/types/common";
 
 export const createDeliveryStepId = "create-delivery-step";
 

@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework";
 import zod from "zod";
 
-import { CreateDriverInput, createUserWorkflow } from "@workflows/user/workflows/create-user";
+import { CreateDriverInput, createUserWorkflow } from "../../../workflows/user/workflows/create-user";
 
 const schema = zod
   .object({
