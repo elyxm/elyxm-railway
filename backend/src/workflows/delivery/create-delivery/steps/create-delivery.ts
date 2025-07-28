@@ -1,26 +1,27 @@
 import { StepResponse, createStep } from "@medusajs/workflows-sdk";
 import { DELIVERY_MODULE } from "modules/delivery";
 import DeliveryModuleService from "modules/delivery/service";
-import { CreateDeliveryWorkflowInput } from "..";
+import { DeliveryDTO } from "modules/delivery/types/common";
 
-export const createDeliveryStepId = "create-delivery";
+export const createDeliveryStepId = "create-delivery-step";
 
 const createDeliveryStep = createStep(
   createDeliveryStepId,
-  async (data: CreateDeliveryWorkflowInput, { container }) => {
+  async (data: {}, { container }) => {
     const deliveryModuleService: DeliveryModuleService = container.resolve(DELIVERY_MODULE);
 
-    const delivery = await deliveryModuleService.createDeliveries(data);
+    const delivery = (await deliveryModuleService.createDeliveries({})) as unknown as DeliveryDTO;
 
-    return new StepResponse(delivery, delivery.id);
+    return new StepResponse(delivery, { delivery_id: delivery.id });
   },
-  function (input, { container }) {
+  async function (input, { container }) {
     if (!input) {
       return;
     }
+
     const deliveryModuleService: DeliveryModuleService = container.resolve(DELIVERY_MODULE);
 
-    return deliveryModuleService.deleteDeliveries([input]);
+    return deliveryModuleService.softDeleteDeliveries(input.delivery_id);
   }
 );
 

@@ -2,6 +2,7 @@ import { DeliveryDTO, DriverDTO } from "./common";
 
 export interface CreateDeliveryDTO {
   cart_id: string;
+  restaurant_id: string;
 }
 
 export interface UpdateDeliveryDTO extends Partial<DeliveryDTO> {
