@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError, QueryContext } from "@medusajs/framework/utils";
-import { CreateRestaurantDTO } from "modules/restaurant/types/mutations";
-import { createRestaurantWorkflow } from "workflows/restaurant/create-restaurant";
 import zod from "zod";
+import { CreateRestaurantDTO } from "../../../modules/restaurant/types/mutations";
+import { createRestaurantWorkflow } from "../../../workflows/restaurant/create-restaurant";
 
 const schema = zod
   .object({
