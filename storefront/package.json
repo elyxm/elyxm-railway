@@ -46,7 +46,12 @@
     "react-intersection-observer": "^9.3.4",
     "server-only": "^0.0.1",
     "tailwindcss-radix": "^2.8.0",
-    "webpack": "^5"
+    "webpack": "^5",
+    "@dotlottie/react-player": "^1.6.19",
+    "eventsource": "^2.0.2",
+    "jose": "^5.2.4",
+    "next-view-transitions": "^0.1.1",
+    "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",

@@ -8,6 +8,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "skipLibCheck": true,
+    "strict": true,
     "skipDefaultLibCheck": true,
     "declaration": true,
     "sourceMap": false,
@@ -21,16 +22,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "checkJs": false
+    // Adding another comment to force TS server restart
   },
   "ts-node": {
     "swc": true
   },
-  "include": ["src", "medusa-config.js"],
-  "exclude": [
-    "**/__tests__",
-    "**/__fixtures__",
-    "node_modules",
-    "build",
-    ".cache"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
