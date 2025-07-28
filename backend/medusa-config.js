@@ -22,7 +22,7 @@ import {
   STRIPE_API_KEY,
   STRIPE_WEBHOOK_SECRET,
   WORKER_MODE,
-} from "lib/constants";
+} from "./src/lib/constants";
 import { DELIVERY_MODULE } from "./src/modules/delivery";
 import { RESTAURANT_MODULE } from "./src/modules/restaurant";
 
