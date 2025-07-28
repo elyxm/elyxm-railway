@@ -1,26 +1,24 @@
-import { loadEnv } from '@medusajs/framework/utils'
+import { loadEnv } from "@medusajs/framework/utils";
 
-import { assertValue } from 'utils/assert-value'
+import { assertValue } from "@utils/assert-value";
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
 /**
  * Is development environment
  */
-export const IS_DEV = process.env.NODE_ENV === 'development'
+export const IS_DEV = process.env.NODE_ENV === "development";
 
 /**
  * Public URL for the backend
  */
-export const BACKEND_URL = process.env.BACKEND_PUBLIC_URL ?? process.env.RAILWAY_PUBLIC_DOMAIN_VALUE ?? 'http://localhost:9000'
+export const BACKEND_URL =
+  process.env.BACKEND_PUBLIC_URL ?? process.env.RAILWAY_PUBLIC_DOMAIN_VALUE ?? "http://localhost:9000";
 
 /**
  * Database URL for Postgres instance used by the backend
  */
-export const DATABASE_URL = assertValue(
-  process.env.DATABASE_URL,
-  'Environment variable for DATABASE_URL is not set',
-)
+export const DATABASE_URL = assertValue(process.env.DATABASE_URL, "Environment variable for DATABASE_URL is not set");
 
 /**
  * (optional) Redis URL for Redis instance used by the backend
@@ -45,18 +43,15 @@ export const STORE_CORS = process.env.STORE_CORS;
 /**
  * JWT Secret used for signing JWT tokens
  */
-export const JWT_SECRET = assertValue(
-  process.env.JWT_SECRET,
-  'Environment variable for JWT_SECRET is not set',
-)
+export const JWT_SECRET = assertValue(process.env.JWT_SECRET, "Environment variable for JWT_SECRET is not set");
 
 /**
  * Cookie secret used for signing cookies
  */
 export const COOKIE_SECRET = assertValue(
   process.env.COOKIE_SECRET,
-  'Environment variable for COOKIE_SECRET is not set',
-)
+  "Environment variable for COOKIE_SECRET is not set"
+);
 
 /**
  * (optional) Minio configuration for file storage
@@ -93,10 +88,9 @@ export const MEILISEARCH_ADMIN_KEY = process.env.MEILISEARCH_ADMIN_KEY;
 /**
  * Worker mode
  */
-export const WORKER_MODE =
-  (process.env.MEDUSA_WORKER_MODE as 'worker' | 'server' | 'shared' | undefined) ?? 'shared'
+export const WORKER_MODE = (process.env.MEDUSA_WORKER_MODE as "worker" | "server" | "shared" | undefined) ?? "shared";
 
 /**
  * Disable Admin
  */
-export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === 'true'
+export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === "true";

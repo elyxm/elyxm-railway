@@ -16,7 +16,11 @@
     "rootDir": "./",
     "baseUrl": ".",
     "paths": {
-      "*": ["./src/*"]
+      "@links/*": ["src/links/*"],
+      "@modules/*": ["src/modules/*"],
+      "@subscribers/*": ["src/subscribers/*"],
+      "@utils/*": ["src/utils/*"],
+      "@workflows/*": ["src/workflows/*"]
     },
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
