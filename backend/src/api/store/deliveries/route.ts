@@ -1,5 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
+import { createDeliveryWorkflow } from "workflows/delivery/create-delivery";
 import zod from "zod";
 // import { createDeliveryWorkflow, handleDeliveryWorkflow } from "../../../workflows/delivery";
 
@@ -15,12 +16,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return MedusaError.Types.INVALID_DATA;
   }
 
-  // const { result: delivery } = await createDeliveryWorkflow(req.scope).run({
-  //   input: {
-  //     cart_id: validatedBody.cart_id,
-  //     restaurant_id: validatedBody.restaurant_id,
-  //   },
-  // });
+  const { result: delivery } = await createDeliveryWorkflow(req.scope).run({
+    input: {
+      cart_id: validatedBody.cart_id,
+      restaurant_id: validatedBody.restaurant_id,
+    },
+  });
 
   // const { transaction } = await handleDeliveryWorkflow(req.scope).run({
   //   input: {
@@ -28,8 +29,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   //   },
   // });
 
+  // return res.status(500).json({ message: "Not implemented" });
   // return res.status(200).json({ message: "Delivery created", delivery, transaction });
-  return res.status(500).json({ message: "Not implemented" });
+  return res.status(200).json({ message: "Delivery created", delivery });
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
