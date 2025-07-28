@@ -7,10 +7,10 @@ const Restaurant = model.define("restaurant", {
       prefix: "res",
     })
     .primaryKey(),
-  handle: model.text().unique(),
-  is_open: model.boolean().default(false),
   name: model.text(),
+  handle: model.text().unique(),
   description: model.text().nullable(),
+  is_open: model.boolean().default(false),
   phone: model.text().nullable(),
   email: model.text().nullable(),
   address: model.text().nullable(),

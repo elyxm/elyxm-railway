@@ -1,9 +1,9 @@
 export interface CreateRestaurantDTO {
   name: string;
   handle: string;
-  address: string;
-  phone: string;
-  email: string;
+  address?: string;
+  phone?: string;
+  email?: string;
   image_url?: string;
   is_open?: boolean;
 }
