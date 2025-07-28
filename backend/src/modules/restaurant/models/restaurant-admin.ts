@@ -7,9 +7,10 @@ const RestaurantAdmin = model.define("restaurant_admin", {
       prefix: "resadm",
     })
     .primaryKey(),
-  first_name: model.text().nullable(),
-  last_name: model.text().nullable(),
+  first_name: model.text(),
+  last_name: model.text(),
   email: model.text().unique(),
+  phone: model.text().nullable(),
   avatar_url: model.text().nullable(),
   restaurant: model.belongsTo(() => Restaurant, {
     mappedBy: "admins",

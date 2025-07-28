@@ -1,3 +1,5 @@
+import { CreateProductDTO } from "@medusajs/types";
+
 export interface CreateRestaurantDTO {
   name: string;
   handle: string;
@@ -27,4 +29,9 @@ export interface CreateAdminInviteDTO {
   resadm_id: string;
   role?: string | null;
   email?: string;
+}
+
+export interface CreateRestaurantProductDTO {
+  products: CreateProductDTO[];
+  restaurant_id: string;
 }

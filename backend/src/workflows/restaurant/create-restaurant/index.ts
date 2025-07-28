@@ -2,7 +2,9 @@ import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-
 import { CreateRestaurantDTO } from "../../../modules/restaurant/types/mutations";
 import { createRestaurantStep } from "./steps";
 
-export const createRestaurantWorkflow = createWorkflow("create-restaurant", function (input: CreateRestaurantDTO) {
+const createRestaurantWorkflowId = "create-restaurant-workflow";
+
+const createRestaurantWorkflow = createWorkflow(createRestaurantWorkflowId, function (input: CreateRestaurantDTO) {
   const restaurant = createRestaurantStep({
     name: input.name,
     handle: input.handle,
@@ -14,3 +16,5 @@ export const createRestaurantWorkflow = createWorkflow("create-restaurant", func
 
   return new WorkflowResponse(restaurant);
 });
+
+export default createRestaurantWorkflow;

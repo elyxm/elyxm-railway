@@ -19,9 +19,10 @@ export interface RestaurantDTO {
 export interface RestaurantAdminDTO {
   id: string;
   restaurant: RestaurantDTO;
-  first_name?: string;
-  last_name?: string;
+  first_name: string;
+  last_name: string;
   email: string;
+  phone?: string;
   avatar_url?: string;
   created_at: Date;
   updated_at: Date;
