@@ -16,11 +16,12 @@
     "rootDir": "./",
     "baseUrl": ".",
     "paths": {
-      "@links/*": ["src/links/*"],
-      "@modules/*": ["src/modules/*"],
-      "@subscribers/*": ["src/subscribers/*"],
-      "@utils/*": ["src/utils/*"],
-      "@workflows/*": ["src/workflows/*"]
+      "*": ["./src/*"],
+      "@links/*": ["./src/links/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@subscribers/*": ["./src/subscribers/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@workflows/*": ["./src/workflows/*"]
     },
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
