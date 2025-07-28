@@ -1,28 +1,34 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError, QueryContext } from "@medusajs/framework/utils";
-import { createRestaurantWorkflow, CreateRestaurantWorkflowInput } from "workflows/restaurant/create-restaurant";
+import { CreateRestaurantDTO } from "modules/restaurant/types/mutations";
+import { createRestaurantWorkflow } from "workflows/restaurant/create-restaurant";
 import zod from "zod";
 
-const schema = zod.object({
-  name: zod.string(),
-  handle: zod.string(),
-  address: zod.string(),
-  phone: zod.string(),
-  email: zod.string(),
-  image_url: zod.string().optional(),
-});
+const schema = zod
+  .object({
+    name: zod.string(),
+    handle: zod.string(),
+    description: zod.string().optional(),
+    is_open: zod.boolean().optional(),
+    phone: zod.string().optional(),
+    email: zod.string().optional(),
+    address: zod.string().optional(),
+    image_url: zod.string().optional(),
+  })
+  .required({
+    name: true,
+    handle: true,
+  });
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const validatedBody = schema.parse(req.body) as CreateRestaurantWorkflowInput;
+export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
+  const validatedBody = schema.parse(req.body) as CreateRestaurantDTO;
 
   if (!validatedBody) {
     return MedusaError.Types.INVALID_DATA;
   }
 
   const { result: restaurant } = await createRestaurantWorkflow(req.scope).run({
-    input: {
-      ...validatedBody,
-    },
+    input: validatedBody,
   });
 
   return res.status(200).json({ message: "Restaurant created", restaurant });
@@ -37,13 +43,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     entity: "restaurant",
     fields: [
       "id",
-      "handle",
       "name",
+      "handle",
+      "description",
+      "is_open",
       "address",
       "phone",
       "email",
+      "address",
       "image_url",
-      "is_open",
       "products.*",
       "products.categories.*",
       "products.variants.*",
