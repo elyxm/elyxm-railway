@@ -1,6 +1,6 @@
 import { CartDTO, CartLineItemDTO, OrderDTO, OrderLineItemDTO } from "@medusajs/types";
-import { RestaurantDTO } from "../../restaurant/types/common";
-import DeliveryModuleService from "../service";
+import DeliveryModuleService from "@modules/delivery/service";
+import { RestaurantDTO } from "@modules/restaurant/types/common";
 
 export enum DeliveryStatus {
   PENDING = "pending",

@@ -1,12 +1,12 @@
 import { Modules } from "@medusajs/framework/utils";
 import { LinkDefinition } from "@medusajs/types";
 import { createWorkflow, transform, WorkflowData, WorkflowResponse } from "@medusajs/workflows-sdk";
+import { DELIVERY_MODULE } from "@modules/delivery";
+import { DeliveryDTO } from "@modules/delivery/types/common";
+import { CreateDeliveryDTO } from "@modules/delivery/types/mutations";
+import { RESTAURANT_MODULE } from "@modules/restaurant";
+import { createDeliveryStep } from "@workflows/delivery/create-delivery/steps";
 import { createRemoteLinkStep } from "../../../../node_modules/@medusajs/core-flows";
-import { DELIVERY_MODULE } from "../../../modules/delivery";
-import { DeliveryDTO } from "../../../modules/delivery/types/common";
-import { CreateDeliveryDTO } from "../../../modules/delivery/types/mutations";
-import { RESTAURANT_MODULE } from "../../../modules/restaurant";
-import { createDeliveryStep } from "./steps";
 
 export const createDeliveryWorkflowId = "create-delivery-workflow";
 
