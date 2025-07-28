@@ -29,7 +29,9 @@
     "@medusajs/dashboard": "latest",
     "@medusajs/notification-sendgrid": "latest",
     "@medusajs/payment-stripe": "latest",
+    "@medusajs/types": "latest",
     "@medusajs/workflow-engine-redis": "latest",
+    "@medusajs/workflows-sdk": "latest",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",
@@ -48,10 +50,7 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.379.0",
     "prism-react-renderer": "^2.0.4",
-    "zod": "^3.22.4",
-    "@medusajs/workflows-sdk": "latest",
-    "@medusajs/utils": "latest",
-    "@medusajs/types": "latest"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@medusajs/test-utils": "latest",

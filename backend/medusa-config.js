@@ -169,7 +169,7 @@ const medusaConfig = {
     },
   ],
   plugins: [
-    ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY
+    ...(process.env.NODE_ENV === "production" && MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY
       ? [
           {
             resolve: "@rokmohar/medusa-plugin-meilisearch",
