@@ -22,7 +22,13 @@ const schema = zod
   });
 
 export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
-  const { auth_identity_id } = req.auth_context;
+  const auth_identity_id = process.env.TEST_AUTH_BYPASS_IDENTITY_ID || req.auth_context?.auth_identity_id;
+
+  if (!auth_identity_id) {
+    return res.status(401).json({
+      error: "Authentication required. For testing, set the TEST_AUTH_BYPASS_IDENTITY_ID environment variable.",
+    });
+  }
 
   const validatedBody = schema.parse(req.body) as CreateDriverInput & {
     actor_type: "restaurant" | "driver";

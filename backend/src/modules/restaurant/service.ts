@@ -1,4 +1,4 @@
-import { MedusaService } from "@medusajs/utils";
+import { MedusaService } from "@medusajs/framework/utils";
 import { Restaurant, RestaurantAdmin } from "./models";
 
 class RestaurantModuleService extends MedusaService({

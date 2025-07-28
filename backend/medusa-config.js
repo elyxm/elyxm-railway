@@ -1,4 +1,4 @@
-import { loadEnv, Modules, defineConfig } from '@medusajs/utils';
+import { defineConfig, loadEnv, Modules } from "@medusajs/utils";
 import {
   ADMIN_CORS,
   AUTH_CORS,
@@ -6,6 +6,10 @@ import {
   COOKIE_SECRET,
   DATABASE_URL,
   JWT_SECRET,
+  MINIO_ACCESS_KEY,
+  MINIO_BUCKET,
+  MINIO_ENDPOINT,
+  MINIO_SECRET_KEY,
   REDIS_URL,
   RESEND_API_KEY,
   RESEND_FROM_EMAIL,
@@ -16,13 +20,9 @@ import {
   STRIPE_API_KEY,
   STRIPE_WEBHOOK_SECRET,
   WORKER_MODE,
-  MINIO_ENDPOINT,
-  MINIO_ACCESS_KEY,
-  MINIO_SECRET_KEY,
-  MINIO_BUCKET,
-  MEILISEARCH_HOST,
-  MEILISEARCH_ADMIN_KEY
-} from 'lib/constants';
+} from "lib/constants";
+import { DELIVERY_MODULE } from "./src/modules/delivery";
+import { RESTAURANT_MODULE } from "./src/modules/restaurant";
 
 loadEnv(process.env.NODE_ENV, process.cwd());
 
@@ -37,13 +37,13 @@ const medusaConfig = {
       authCors: AUTH_CORS,
       storeCors: STORE_CORS,
       jwtSecret: JWT_SECRET,
-      cookieSecret: COOKIE_SECRET
+      cookieSecret: COOKIE_SECRET,
     },
     build: {
       rollupOptions: {
-        external: ["@medusajs/dashboard"]
-      }
-    }
+        external: ["@medusajs/dashboard"],
+      },
+    },
   },
   admin: {
     backendUrl: BACKEND_URL,
@@ -52,112 +52,150 @@ const medusaConfig = {
   modules: [
     {
       key: Modules.FILE,
-      resolve: '@medusajs/file',
+      resolve: "@medusajs/file",
       options: {
         providers: [
-          ...(MINIO_ENDPOINT && MINIO_ACCESS_KEY && MINIO_SECRET_KEY ? [{
-            resolve: './src/modules/minio-file',
-            id: 'minio',
-            options: {
-              endPoint: MINIO_ENDPOINT,
-              accessKey: MINIO_ACCESS_KEY,
-              secretKey: MINIO_SECRET_KEY,
-              bucket: MINIO_BUCKET // Optional, default: medusa-media
-            }
-          }] : [{
-            resolve: '@medusajs/file-local',
-            id: 'local',
-            options: {
-              upload_dir: 'static',
-              backend_url: `${BACKEND_URL}/static`
-            }
-          }])
-        ]
-      }
-    },
-    ...(REDIS_URL ? [{
-      key: Modules.EVENT_BUS,
-      resolve: '@medusajs/event-bus-redis',
-      options: {
-        redisUrl: REDIS_URL
-      }
-    },
-    {
-      key: Modules.WORKFLOW_ENGINE,
-      resolve: '@medusajs/workflow-engine-redis',
-      options: {
-        redis: {
-          url: REDIS_URL,
-        }
-      }
-    }] : []),
-    ...(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL || RESEND_API_KEY && RESEND_FROM_EMAIL ? [{
-      key: Modules.NOTIFICATION,
-      resolve: '@medusajs/notification',
-      options: {
-        providers: [
-          ...(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL ? [{
-            resolve: '@medusajs/notification-sendgrid',
-            id: 'sendgrid',
-            options: {
-              channels: ['email'],
-              api_key: SENDGRID_API_KEY,
-              from: SENDGRID_FROM_EMAIL,
-            }
-          }] : []),
-          ...(RESEND_API_KEY && RESEND_FROM_EMAIL ? [{
-            resolve: './src/modules/email-notifications',
-            id: 'resend',
-            options: {
-              channels: ['email'],
-              api_key: RESEND_API_KEY,
-              from: RESEND_FROM_EMAIL,
-            },
-          }] : []),
-        ]
-      }
-    }] : []),
-    ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
-      key: Modules.PAYMENT,
-      resolve: '@medusajs/payment',
-      options: {
-        providers: [
-          {
-            resolve: '@medusajs/payment-stripe',
-            id: 'stripe',
-            options: {
-              apiKey: STRIPE_API_KEY,
-              webhookSecret: STRIPE_WEBHOOK_SECRET,
-            },
-          },
+          ...(MINIO_ENDPOINT && MINIO_ACCESS_KEY && MINIO_SECRET_KEY
+            ? [
+                {
+                  resolve: "./src/modules/minio-file",
+                  id: "minio",
+                  options: {
+                    endPoint: MINIO_ENDPOINT,
+                    accessKey: MINIO_ACCESS_KEY,
+                    secretKey: MINIO_SECRET_KEY,
+                    bucket: MINIO_BUCKET, // Optional, default: medusa-media
+                  },
+                },
+              ]
+            : [
+                {
+                  resolve: "@medusajs/file-local",
+                  id: "local",
+                  options: {
+                    upload_dir: "static",
+                    backend_url: `${BACKEND_URL}/static`,
+                  },
+                },
+              ]),
         ],
       },
-    }] : [])
+    },
+    ...(REDIS_URL
+      ? [
+          {
+            key: Modules.EVENT_BUS,
+            resolve: "@medusajs/event-bus-redis",
+            options: {
+              redisUrl: REDIS_URL,
+            },
+          },
+          {
+            key: Modules.WORKFLOW_ENGINE,
+            resolve: "@medusajs/workflow-engine-redis",
+            options: {
+              redis: {
+                url: REDIS_URL,
+              },
+            },
+          },
+        ]
+      : []),
+    ...((SENDGRID_API_KEY && SENDGRID_FROM_EMAIL) || (RESEND_API_KEY && RESEND_FROM_EMAIL)
+      ? [
+          {
+            key: Modules.NOTIFICATION,
+            resolve: "@medusajs/notification",
+            options: {
+              providers: [
+                ...(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL
+                  ? [
+                      {
+                        resolve: "@medusajs/notification-sendgrid",
+                        id: "sendgrid",
+                        options: {
+                          channels: ["email"],
+                          api_key: SENDGRID_API_KEY,
+                          from: SENDGRID_FROM_EMAIL,
+                        },
+                      },
+                    ]
+                  : []),
+                ...(RESEND_API_KEY && RESEND_FROM_EMAIL
+                  ? [
+                      {
+                        resolve: "./src/modules/email-notifications",
+                        id: "resend",
+                        options: {
+                          channels: ["email"],
+                          api_key: RESEND_API_KEY,
+                          from: RESEND_FROM_EMAIL,
+                        },
+                      },
+                    ]
+                  : []),
+              ],
+            },
+          },
+        ]
+      : []),
+    ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET
+      ? [
+          {
+            key: Modules.PAYMENT,
+            resolve: "@medusajs/payment",
+            options: {
+              providers: [
+                {
+                  resolve: "@medusajs/payment-stripe",
+                  id: "stripe",
+                  options: {
+                    apiKey: STRIPE_API_KEY,
+                    webhookSecret: STRIPE_WEBHOOK_SECRET,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+    {
+      key: RESTAURANT_MODULE,
+      resolve: "./src/modules/restaurant",
+    },
+    {
+      key: DELIVERY_MODULE,
+      resolve: "./src/modules/delivery",
+    },
   ],
   plugins: [
-  ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY ? [{
-      resolve: '@rokmohar/medusa-plugin-meilisearch',
-      options: {
-        config: {
-          host: MEILISEARCH_HOST,
-          apiKey: MEILISEARCH_ADMIN_KEY
-        },
-        settings: {
-          products: {
-            type: 'products',
-            enabled: true,
-            fields: ['id', 'title', 'description', 'handle', 'variant_sku', 'thumbnail'],
-            indexSettings: {
-              searchableAttributes: ['title', 'description', 'variant_sku'],
-              displayedAttributes: ['id', 'handle', 'title', 'description', 'variant_sku', 'thumbnail'],
-              filterableAttributes: ['id', 'handle'],
-            },
-            primaryKey: 'id',
-          }
-        }
-      }
-    }] : [])
-  ]
+    //   ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY
+    //     ? [
+    //         {
+    //           resolve: "@rokmohar/medusa-plugin-meilisearch",
+    //           options: {
+    //             config: {
+    //               host: MEILISEARCH_HOST,
+    //               apiKey: MEILISEARCH_ADMIN_KEY,
+    //             },
+    //             settings: {
+    //               products: {
+    //                 type: "products",
+    //                 enabled: true,
+    //                 fields: ["id", "title", "description", "handle", "variant_sku", "thumbnail"],
+    //                 indexSettings: {
+    //                   searchableAttributes: ["title", "description", "variant_sku"],
+    //                   displayedAttributes: ["id", "handle", "title", "description", "variant_sku", "thumbnail"],
+    //                   filterableAttributes: ["id", "handle"],
+    //                 },
+    //                 primaryKey: "id",
+    //               },
+    //             },
+    //           },
+    //         },
+    //       ]
+    //     : []),
+  ],
 };
 
 console.log(JSON.stringify(medusaConfig, null, 2));
