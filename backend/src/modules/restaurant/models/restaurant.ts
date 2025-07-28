@@ -1,4 +1,4 @@
-import { model } from "@medusajs/utils";
+import { model } from "@medusajs/framework/utils";
 import RestaurantAdmin from "./restaurant-admin";
 
 const Restaurant = model.define("restaurant", {
@@ -7,13 +7,13 @@ const Restaurant = model.define("restaurant", {
       prefix: "res",
     })
     .primaryKey(),
-  handle: model.text(),
+  handle: model.text().unique(),
   is_open: model.boolean().default(false),
   name: model.text(),
   description: model.text().nullable(),
-  phone: model.text(),
-  email: model.text(),
-  address: model.text(),
+  phone: model.text().nullable(),
+  email: model.text().nullable(),
+  address: model.text().nullable(),
   image_url: model.text().nullable(),
   admins: model.hasMany(() => RestaurantAdmin, {
     mapBy: "restaurant",

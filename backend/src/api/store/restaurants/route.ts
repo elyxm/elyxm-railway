@@ -1,6 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { QueryContext } from "@medusajs/framework/utils";
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils";
+import { ContainerRegistrationKeys, MedusaError, QueryContext } from "@medusajs/framework/utils";
 import { createRestaurantWorkflow, CreateRestaurantWorkflowInput } from "workflows/restaurant/create-restaurant";
 import zod from "zod";
 

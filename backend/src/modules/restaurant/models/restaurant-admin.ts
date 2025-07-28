@@ -1,4 +1,4 @@
-import { model } from "@medusajs/utils";
+import { model } from "@medusajs/framework/utils";
 import Restaurant from "./restaurant";
 
 const RestaurantAdmin = model.define("restaurant_admin", {
@@ -7,9 +7,9 @@ const RestaurantAdmin = model.define("restaurant_admin", {
       prefix: "resadm",
     })
     .primaryKey(),
-  first_name: model.text(),
-  last_name: model.text(),
-  email: model.text(),
+  first_name: model.text().nullable(),
+  last_name: model.text().nullable(),
+  email: model.text().unique(),
   avatar_url: model.text().nullable(),
   restaurant: model.belongsTo(() => Restaurant, {
     mappedBy: "admins",

@@ -58,7 +58,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "email": {
@@ -67,7 +67,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "address": {
@@ -76,7 +76,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "image_url": {
@@ -125,6 +125,15 @@
       "schema": "public",
       "indexes": [
         {
+          "keyName": "IDX_restaurant_handle_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_restaurant_handle_unique\" ON \"restaurant\" (handle) WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "IDX_restaurant_deleted_at",
           "columnNames": [],
           "composite": false,
@@ -165,7 +174,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "last_name": {
@@ -174,7 +183,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "email": {
@@ -240,6 +249,15 @@
       "name": "restaurant_admin",
       "schema": "public",
       "indexes": [
+        {
+          "keyName": "IDX_restaurant_admin_email_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_restaurant_admin_email_unique\" ON \"restaurant_admin\" (email) WHERE deleted_at IS NULL"
+        },
         {
           "keyName": "IDX_restaurant_admin_restaurant_id",
           "columnNames": [],
