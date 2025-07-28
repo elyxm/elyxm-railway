@@ -3,10 +3,10 @@ import { RESTAURANT_MODULE } from "../../../../modules/restaurant";
 import RestaurantModuleService from "../../../../modules/restaurant/service";
 import { CreateRestaurantDTO } from "../../../../modules/restaurant/types/mutations";
 
-export const createRestaurantStepId = "create-restaurant-step";
+export const createRestaurantProductsStepId = "create-restaurant-products-step";
 
-const createRestaurantStep = createStep(
-  createRestaurantStepId,
+const createRestaurantProductsStep = createStep(
+  createRestaurantProductsStepId,
   async (data: CreateRestaurantDTO, { container }) => {
     const restaurantModuleService: RestaurantModuleService = container.resolve(RESTAURANT_MODULE);
 
@@ -24,4 +24,4 @@ const createRestaurantStep = createStep(
   }
 );
 
-export default createRestaurantStep;
+export default createRestaurantProductsStep;
