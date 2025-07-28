@@ -1,6 +1,6 @@
 # Backend Implementation Plan
 
-This document outlines the plan to implement missing backend features identified by comparing our project with the `medusa-eats` reference project.
+This document outlines the plan to implement missing backend features identified by comparing our project with the `medusa-eats` reference project located in the tmp/ folder.
 
 ## Analysis Summary
 
@@ -44,9 +44,11 @@ To work on each task, please use the following prompt format. Replace `[Task Des
 ```
 Hello, I need your help with a task for our Medusa 2.0 backend.
 
-**Project Context:** We are building a food delivery application similar to `medusa-eats`. Our project is split into a `backend` and a `storefront`. We are currently working on implementing missing backend features based on an implementation plan located at `backend/implementation-plan.md`.
+**Project Context:** We are building a food delivery application similar to `medusa-eats` which is referenced in the tmp/ folder. Our project is split into a `backend` and a `storefront`. We are currently working on implementing missing backend features based on an implementation plan located at `backend/implementation-plan.md`.
 
 **Current Task:** [Task Description]
 
-Please help me implement this task. Adhere to the existing conventions in our codebase.
+Please help me implement this task. Adhere to the existing conventions in our codebase. Allow me to validate the work manually before marking the task complete.
+
+use context7
 ```

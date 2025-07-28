@@ -7,9 +7,9 @@ export interface RestaurantDTO {
   is_open: boolean;
   name: string;
   description?: string;
-  address: string;
-  phone: string;
-  email: string;
+  address?: string;
+  phone?: string;
+  email?: string;
   image_url?: string;
   created_at: Date;
   updated_at: Date;
@@ -19,9 +19,10 @@ export interface RestaurantDTO {
 export interface RestaurantAdminDTO {
   id: string;
   restaurant: RestaurantDTO;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
+  avatar_url?: string;
   created_at: Date;
   updated_at: Date;
 }
