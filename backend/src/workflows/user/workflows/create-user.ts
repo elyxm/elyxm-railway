@@ -1,6 +1,6 @@
 import { setAuthAppMetadataStep } from "@medusajs/core-flows";
 import { createWorkflow, transform, WorkflowData, WorkflowResponse } from "@medusajs/workflows-sdk";
-import { createUserStep } from "../steps/create-user";
+import { createUserStep } from "@workflows/user/steps/create-user";
 
 export type CreateRestaurantAdminInput = {
   restaurant_id: string;
