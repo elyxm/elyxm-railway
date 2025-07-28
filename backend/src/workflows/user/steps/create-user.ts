@@ -1,11 +1,11 @@
 import { MedusaError } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/workflows-sdk";
-import { DriverDTO } from "modules/delivery/types/common";
-import { RestaurantAdminDTO } from "modules/restaurant/types/common";
 import { DELIVERY_MODULE } from "../../../modules/delivery";
 import DeliveryModuleService from "../../../modules/delivery/service";
+import { DriverDTO } from "../../../modules/delivery/types/common";
 import { RESTAURANT_MODULE } from "../../../modules/restaurant";
 import RestaurantModuleService from "../../../modules/restaurant/service";
+import { RestaurantAdminDTO } from "../../../modules/restaurant/types/common";
 import { CreateDriverInput, CreateRestaurantAdminInput } from "../workflows/create-user";
 
 type CreateUserStepInput = (CreateRestaurantAdminInput | CreateDriverInput) & {

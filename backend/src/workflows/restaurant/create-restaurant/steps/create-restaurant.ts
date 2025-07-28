@@ -1,7 +1,7 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
-import { RESTAURANT_MODULE } from "modules/restaurant";
-import RestaurantModuleService from "modules/restaurant/service";
-import { CreateRestaurantDTO } from "modules/restaurant/types/mutations";
+import { RESTAURANT_MODULE } from "../../../../modules/restaurant";
+import RestaurantModuleService from "../../../../modules/restaurant/service";
+import { CreateRestaurantDTO } from "../../../../modules/restaurant/types/mutations";
 
 export const createRestaurantStepId = "create-restaurant";
 
