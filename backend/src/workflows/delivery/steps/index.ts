@@ -8,4 +8,5 @@ export { default as createOrderStep } from "./create-order";
 export { default as deleteDeliveryDriversStep } from "./delete-delivery-drivers";
 export { default as findDriverStep } from "./find-driver";
 export { default as notifyRestaurantStep } from "./notify-restaurant";
+export { default as setTransactionIdStep } from "./set-transaction-id";
 export { default as updateDeliveryStep } from "./update-delivery";
