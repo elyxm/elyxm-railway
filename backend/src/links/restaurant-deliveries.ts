@@ -1,4 +1,4 @@
-import { defineLink } from "@medusajs/framework/utils";
+import { defineLink } from "@medusajs/utils";
 import DeliveryModule from "../modules/delivery";
 import RestaurantModule from "../modules/restaurant";
 

@@ -1,4 +1,4 @@
-import { MedusaService } from "@medusajs/framework/utils";
+import { MedusaService } from "@medusajs/utils";
 import { Delivery, DeliveryDriver, Driver } from "./models";
 
 class DeliveryModuleService extends MedusaService({

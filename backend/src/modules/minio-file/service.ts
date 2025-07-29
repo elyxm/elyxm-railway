@@ -4,8 +4,8 @@ import {
   ProviderFileResultDTO,
   ProviderGetFileDTO,
   ProviderUploadFileDTO,
-} from "@medusajs/framework/types";
-import { AbstractFileProviderService, MedusaError } from "@medusajs/framework/utils";
+} from "@medusajs/types";
+import { AbstractFileProviderService, MedusaError } from "@medusajs/utils";
 import { Client } from "minio";
 import path from "path";
 import { ulid } from "ulid";

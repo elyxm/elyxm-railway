@@ -1,4 +1,4 @@
-import { OrderAddressDTO, OrderDTO } from "@medusajs/framework/types";
+import { OrderAddressDTO, OrderDTO } from "@medusajs/types";
 import { Hr, Section, Text } from "@react-email/components";
 import * as React from "react";
 import { Base } from "./base";

@@ -1,4 +1,4 @@
-import { ModuleRegistrationName, remoteQueryObjectFromString } from "@medusajs/framework/utils";
+import { ModuleRegistrationName, remoteQueryObjectFromString } from "@medusajs/utils";
 import { createStep } from "@medusajs/workflows-sdk";
 import { DELIVERY_MODULE, DeliveryModuleService, DriverDTO } from "../../../modules";
 

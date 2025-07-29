@@ -1,4 +1,4 @@
-import { model } from "@medusajs/framework/utils";
+import { model } from "@medusajs/utils";
 import RestaurantAdmin from "./restaurant-admin";
 
 const Restaurant = model.define("restaurant", {

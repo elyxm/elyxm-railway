@@ -1,4 +1,4 @@
-import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
+import { StepResponse, createStep } from "@medusajs/workflows-sdk";
 import { CreateRestaurantDTO, RESTAURANT_MODULE, RestaurantModuleService } from "../../../modules";
 
 export const createRestaurantProductsStepId = "create-restaurant-products-step";

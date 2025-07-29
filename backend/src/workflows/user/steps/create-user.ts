@@ -1,4 +1,4 @@
-import { MedusaError } from "@medusajs/framework/utils";
+import { MedusaError } from "@medusajs/utils";
 import { createStep, StepResponse } from "@medusajs/workflows-sdk";
 import { CreateDriverInput, CreateRestaurantAdminInput } from "../";
 import {

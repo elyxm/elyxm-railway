@@ -1,4 +1,4 @@
-import { Module } from "@medusajs/framework/utils";
+import { Module } from "@medusajs/utils";
 import DeliveryModuleService from "./service";
 
 export const DELIVERY_MODULE = "delivery";

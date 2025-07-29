@@ -1,4 +1,4 @@
-import { CartDTO, CartLineItemDTO, OrderDTO, OrderLineItemDTO } from "@medusajs/framework/types";
+import { CartDTO, CartLineItemDTO, OrderDTO, OrderLineItemDTO } from "@medusajs/types";
 import { RestaurantDTO } from "../../restaurant/types/common";
 import DeliveryModuleService from "../service";
 
@@ -49,7 +49,7 @@ export interface DeliveryDriverDTO {
   driver_id: string;
 }
 
-declare module "@medusajs/framework/types" {
+declare module "@medusajs/types" {
   export interface ModuleImplementations {
     deliveryModuleService: DeliveryModuleService;
   }

@@ -1,6 +1,6 @@
 import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { AdminCreateProduct } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
+import { AdminCreateProduct } from "@medusajs/types";
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils";
 import { z } from "zod";
 import { deleteProductsWorkflow } from "../../../../../../node_modules/@medusajs/core-flows";
 import { createRestaurantProductsWorkflow } from "../../../../../workflows";

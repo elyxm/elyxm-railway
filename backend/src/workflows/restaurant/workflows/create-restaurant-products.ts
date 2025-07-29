@@ -1,5 +1,5 @@
-import { Modules } from "@medusajs/framework/utils";
-import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
+import { Modules } from "@medusajs/utils";
+import { createWorkflow, transform, WorkflowResponse } from "@medusajs/workflows-sdk";
 import { createProductsWorkflow, createRemoteLinkStep } from "../../../../node_modules/@medusajs/core-flows";
 import { CreateRestaurantProductDTO, RESTAURANT_MODULE } from "../../../modules";
 

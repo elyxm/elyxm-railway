@@ -76,8 +76,8 @@ The Medusa container is available on `req.scope`. Use it to access modules' main
 
 ```ts
 import type { MedusaRequest, MedusaResponse } from "@medusajs/medusa";
-import { IProductModuleService } from "@medusajs/framework/types";
-import { ModuleRegistrationName } from "@medusajs/framework/utils";
+import { IProductModuleService } from "@medusajs/types";
+import { ModuleRegistrationName } from "@medusajs/utils";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const productModuleService: IProductModuleService = req.scope.resolve(ModuleRegistrationName.PRODUCT);

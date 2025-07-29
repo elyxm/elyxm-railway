@@ -1,5 +1,5 @@
 import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ContainerRegistrationKeys, MedusaError, QueryContext } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, MedusaError, QueryContext } from "@medusajs/utils";
 import zod from "zod";
 import { CreateRestaurantDTO } from "../../../modules";
 import { createRestaurantWorkflow } from "../../../workflows";

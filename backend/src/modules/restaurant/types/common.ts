@@ -1,4 +1,4 @@
-import { ProductDTO } from "@medusajs/framework/types";
+import { ProductDTO } from "@medusajs/types";
 import RestaurantModuleService from "../service";
 
 export interface RestaurantDTO {
@@ -33,7 +33,7 @@ export interface RestaurantProductDTO {
   product_id: string;
 }
 
-declare module "@medusajs/framework/types" {
+declare module "@medusajs/types" {
   export interface ModuleImplementations {
     restaurantModuleService: RestaurantModuleService;
   }

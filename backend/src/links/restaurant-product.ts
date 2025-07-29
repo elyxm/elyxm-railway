@@ -1,5 +1,5 @@
-import { defineLink } from "@medusajs/framework/utils";
 import RestaurantModule from "@medusajs/medusa/product";
+import { defineLink } from "@medusajs/utils";
 import ProductModule from "../modules/restaurant";
 
 export default defineLink(
