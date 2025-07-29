@@ -1,7 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils";
+import { DeliveryDTO } from "modules";
 import zod from "zod";
-import { createDeliveryWorkflow } from "../../../workflows";
+import { createDeliveryWorkflow, handleDeliveryWorkflow } from "../../../workflows";
 
 const schema = zod.object({
   cart_id: zod.string().startsWith("cart_"),
@@ -22,15 +23,13 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     },
   });
 
-  // const { transaction } = await handleDeliveryWorkflow(req.scope).run({
-  //   input: {
-  //     delivery_id: (delivery as Delivery).id,
-  //   },
-  // });
+  const { transaction } = await handleDeliveryWorkflow(req.scope).run({
+    input: {
+      delivery_id: (delivery as DeliveryDTO).id,
+    },
+  });
 
-  // return res.status(500).json({ message: "Not implemented" });
-  // return res.status(200).json({ message: "Delivery created", delivery, transaction });
-  return res.status(200).json({ message: "Delivery created", delivery });
+  return res.status(200).json({ message: "Delivery created", delivery, transaction });
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
