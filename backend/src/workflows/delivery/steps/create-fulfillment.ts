@@ -1,5 +1,5 @@
-import { OrderDTO } from "@medusajs/framework/types";
-import { ModuleRegistrationName } from "@medusajs/framework/utils";
+import { OrderDTO } from "@medusajs/types";
+import { ModuleRegistrationName } from "@medusajs/utils";
 import { StepResponse, createStep } from "@medusajs/workflows-sdk";
 
 export const createFulfillmentStepId = "create-fulfillment-step";

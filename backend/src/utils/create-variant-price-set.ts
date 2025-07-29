@@ -1,6 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework";
-import { CreatePriceSetDTO, IPricingModuleService, PriceSetDTO } from "@medusajs/framework/types";
-import { Modules, remoteQueryObjectFromString } from "@medusajs/framework/utils";
+import { CreatePriceSetDTO, IPricingModuleService, PriceSetDTO } from "@medusajs/types";
+import { Modules, remoteQueryObjectFromString } from "@medusajs/utils";
 
 export const createVariantPriceSet = async ({
   container,

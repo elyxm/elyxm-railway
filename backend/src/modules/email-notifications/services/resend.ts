@@ -1,5 +1,5 @@
-import { Logger, NotificationTypes } from "@medusajs/framework/types";
-import { AbstractNotificationProviderService, MedusaError } from "@medusajs/framework/utils";
+import { Logger, NotificationTypes } from "@medusajs/types";
+import { AbstractNotificationProviderService, MedusaError } from "@medusajs/utils";
 import { ReactNode } from "react";
 import { CreateEmailOptions, Resend } from "resend";
 import { generateEmailTemplate } from "../templates";

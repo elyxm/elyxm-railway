@@ -1,4 +1,4 @@
-import { ModuleRegistrationName, TransactionHandlerType } from "@medusajs/framework/utils";
+import { ModuleRegistrationName, TransactionHandlerType } from "@medusajs/utils";
 import { StepResponse, createStep } from "@medusajs/workflows-sdk";
 import { DeliveryDTO } from "../../../modules";
 

@@ -1,4 +1,4 @@
-import { CreateProductDTO } from "@medusajs/framework/types";
+import { CreateProductDTO } from "@medusajs/types";
 
 export interface CreateRestaurantDTO {
   name: string;

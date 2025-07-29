@@ -1,5 +1,5 @@
-import { CreateOrderShippingMethodDTO } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys, ModuleRegistrationName, Modules } from "@medusajs/framework/utils";
+import { CreateOrderShippingMethodDTO } from "@medusajs/types";
+import { ContainerRegistrationKeys, ModuleRegistrationName, Modules } from "@medusajs/utils";
 import { StepResponse, createStep } from "@medusajs/workflows-sdk";
 
 export const createOrderStepId = "create-order-step";

@@ -9,8 +9,8 @@ To create a custom CLI script, create a TypeScript or JavaScript file under the 
 For example, create the file `src/scripts/my-script.ts` with the following content:
 
 ```ts title="src/scripts/my-script.ts"
-import { ExecArgs, IProductModuleService } from "@medusajs/framework/types";
-import { ModuleRegistrationName } from "@medusajs/framework/utils";
+import { ExecArgs, IProductModuleService } from "@medusajs/types";
+import { ModuleRegistrationName } from "@medusajs/utils";
 
 export default async function myScript({ container }: ExecArgs) {
   const productModuleService: IProductModuleService = container.resolve(ModuleRegistrationName.PRODUCT);
@@ -42,7 +42,7 @@ Your script can accept arguments from the command line. Arguments are passed to 
 For example:
 
 ```ts
-import { ExecArgs } from "@medusajs/framework/types";
+import { ExecArgs } from "@medusajs/types";
 
 export default async function myScript({ args }: ExecArgs) {
   console.log(`The arguments you passed: ${args}`);

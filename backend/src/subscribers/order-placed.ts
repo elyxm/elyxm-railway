@@ -1,6 +1,6 @@
-import { INotificationModuleService } from "@medusajs/framework/types";
-import { Modules } from "@medusajs/framework/utils";
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/medusa";
+import { INotificationModuleService } from "@medusajs/types";
+import { Modules } from "@medusajs/utils";
 
 export default async function orderPlacedHandler({ event: { data }, container }: SubscriberArgs<any>) {
   const orderModuleService = container.resolve(Modules.ORDER) as any;

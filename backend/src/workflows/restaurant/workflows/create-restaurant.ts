@@ -1,4 +1,4 @@
-import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
+import { createWorkflow, WorkflowResponse } from "@medusajs/workflows-sdk";
 import { createRestaurantStep } from "../";
 import { CreateRestaurantDTO } from "../../../modules";
 
