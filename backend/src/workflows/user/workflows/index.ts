@@ -1,5 +1,3 @@
-export { default as createUserWorkflow } from "./create-user";
-
 import {
   CreateDriverInput,
   CreateRestaurantAdminInput,
@@ -10,3 +8,5 @@ import {
 export { createUserWorkflowId };
 
 export type { CreateDriverInput, CreateRestaurantAdminInput, CreateUserWorkflowInput };
+
+export { default as createUserWorkflow } from "./create-user";
