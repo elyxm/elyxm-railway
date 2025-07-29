@@ -5,7 +5,8 @@ import {
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { MedusaError } from "@medusajs/utils";
+import { HttpTypes } from "@medusajs/types";
+import { MedusaError, Modules } from "@medusajs/utils";
 import { Request } from "express";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
@@ -27,6 +28,36 @@ const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/store/products", // ℹ️ The core API route we want to cache
+      method: "GET",
+      middlewares: [
+        async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+          const cacheModule = req.scope.resolve(Modules.CACHE);
+
+          // ℹ️ This is the part responsible for retrieving the products from the cache
+          const cacheKey = `medusa:products`;
+          const cachedProducts = await cacheModule.get<HttpTypes.StoreProductListResponse>(cacheKey);
+
+          if (cachedProducts) {
+            res.json(cachedProducts);
+            return;
+          }
+
+          // ℹ️ This is the part responsible for caching the products after they are retrieved from the database
+          const originalJsonFn = res.json;
+          Object.assign(res, {
+            json: async function (body: HttpTypes.StoreProductListResponse) {
+              const CACHE_DURATION_IN_MINUTES = 10;
+              await cacheModule.set(cacheKey, body, CACHE_DURATION_IN_MINUTES * 60); // convert minutes to seconds
+              await originalJsonFn.call(res, body);
+            },
+          });
+
+          next();
+        },
+      ],
+    },
     {
       matcher: "/test*",
       middlewares: [
