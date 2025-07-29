@@ -23,6 +23,9 @@ importers:
       '@medusajs/framework':
         specifier: 2.8.8
         version: 2.8.8(@medusajs/cli@2.8.8(@mikro-orm/core@6.4.3)(@mikro-orm/knex@6.4.3(@mikro-orm/core@6.4.3)(pg@8.16.0))(@mikro-orm/migrations@6.4.3(@mikro-orm/core@6.4.3)(@types/node@20.19.0)(pg@8.16.0))(@mikro-orm/postgresql@6.4.3(@mikro-orm/core@6.4.3))(awilix@8.0.1)(ioredis@5.6.1)(pg@8.16.0)(vite@5.4.19(@types/node@20.19.0)))(@mikro-orm/cli@6.4.3(pg@8.16.0))(@mikro-orm/core@6.4.3)(@mikro-orm/knex@6.4.3(@mikro-orm/core@6.4.3)(pg@8.16.0))(@mikro-orm/migrations@6.4.3(@mikro-orm/core@6.4.3)(@types/node@20.19.0)(pg@8.16.0))(@mikro-orm/postgresql@6.4.3(@mikro-orm/core@6.4.3))(awilix@8.0.1)(ioredis@5.6.1)(pg@8.16.0)(vite@5.4.19(@types/node@20.19.0))
+      '@medusajs/icons':
+        specifier: latest
+        version: 2.8.8(react@18.3.1)
       '@medusajs/medusa':
         specifier: 2.8.8
         version: 2.8.8(362j6v4lavocf3z5l4psj5yjk4)
@@ -35,6 +38,9 @@ importers:
       '@medusajs/types':
         specifier: 2.8.8
         version: 2.8.8(awilix@8.0.1)(ioredis@5.6.1)(vite@5.4.19(@types/node@20.19.0))
+      '@medusajs/ui':
+        specifier: latest
+        version: 4.0.18(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
       '@medusajs/utils':
         specifier: 2.8.8
         version: 2.8.8(@mikro-orm/core@6.4.3)(@mikro-orm/knex@6.4.3(@mikro-orm/core@6.4.3)(pg@8.16.0))(@mikro-orm/migrations@6.4.3(@mikro-orm/core@6.4.3)(@types/node@20.19.0)(pg@8.16.0))(@mikro-orm/postgresql@6.4.3(@mikro-orm/core@6.4.3))(awilix@8.0.1)(express@4.21.2)(ioredis@5.6.1)(pg@8.16.0)(vite@5.4.19(@types/node@20.19.0))
