@@ -1,8 +1,7 @@
 import { Modules } from "@medusajs/framework/utils";
 import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
 import { createProductsWorkflow, createRemoteLinkStep } from "../../../../node_modules/@medusajs/core-flows";
-import { RESTAURANT_MODULE } from "../../../modules/restaurant";
-import { CreateRestaurantProductDTO } from "../../../modules/restaurant/types/mutations";
+import { CreateRestaurantProductDTO, RESTAURANT_MODULE } from "../../../modules";
 
 const createRestaurantProductsWorkflowId = "create-restaurant-products-workflow";
 

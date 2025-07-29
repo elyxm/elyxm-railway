@@ -8,3 +8,5 @@ export default Module(RESTAURANT_MODULE, {
 });
 
 export * from "./types";
+
+export { default as RestaurantModuleService } from "./service";

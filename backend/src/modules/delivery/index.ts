@@ -8,3 +8,5 @@ export default Module(DELIVERY_MODULE, {
 });
 
 export * from "./types";
+
+export { default as DeliveryModuleService } from "./service";
