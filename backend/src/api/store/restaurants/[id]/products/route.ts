@@ -48,7 +48,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   const { data: restaurantProducts } = await query.graph(restaurantProductsQuery);
 
-  return res.status(200).json({ restaurant_products: restaurantProducts });
+  return res.status(200).json({ products: restaurantProducts[0]?.products ?? [] });
 }
 
 const deleteSchema = z.object({

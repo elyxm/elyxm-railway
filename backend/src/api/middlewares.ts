@@ -1,4 +1,11 @@
-import { authenticate, defineMiddlewares, MedusaNextFunction, MedusaResponse } from "@medusajs/framework";
+import {
+  authenticate,
+  defineMiddlewares,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework";
+import { MedusaError } from "@medusajs/utils";
 import { Request } from "express";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
@@ -60,4 +67,18 @@ export default defineMiddlewares({
       middlewares: [authenticate(["restaurant", "admin"], "bearer")],
     },
   ],
+  errorHandler: (error: Error, req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+    let statusCode = 500;
+    let message = "An unknown error occurred";
+
+    if (error instanceof MedusaError) {
+      statusCode =
+        error.code && error.code !== "unknown_error" && isNaN(Number(error.code)) ? Number(error.code) : statusCode;
+      message = error.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
+    res.status(statusCode).json({ message });
+  },
 });
