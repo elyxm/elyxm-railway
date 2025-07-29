@@ -4,6 +4,10 @@ export interface CreateDeliveryDTO {
   cart_id: string;
   restaurant_id: string;
 }
+export interface ClaimDeliveryDTO {
+  delivery_id: string;
+  driver_id: string;
+}
 
 export interface UpdateDeliveryDTO extends Partial<DeliveryDTO> {
   id: string;

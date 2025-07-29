@@ -6,7 +6,7 @@ import { DELIVERY_MODULE } from "../../../modules/delivery";
 import { DeliveryDTO } from "../../../modules/delivery/types/common";
 import { CreateDeliveryDTO } from "../../../modules/delivery/types/mutations";
 import { RESTAURANT_MODULE } from "../../../modules/restaurant";
-import { createDeliveryStep } from "./steps";
+import { createDeliveryStep } from "../steps";
 
 export const createDeliveryWorkflowId = "create-delivery-workflow";
 

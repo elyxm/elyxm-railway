@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
 import zod from "zod";
-import { createDeliveryWorkflow } from "../../../workflows/delivery/create-delivery";
+import { createDeliveryWorkflow } from "../../../workflows/delivery/workflows/create-delivery";
 // import { createDeliveryWorkflow, handleDeliveryWorkflow } from "../../../workflows/delivery";
 
 const schema = zod.object({

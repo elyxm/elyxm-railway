@@ -1,0 +1,13 @@
+import { createStep } from "@medusajs/workflows-sdk";
+
+export const awaitDeliveryStepId = "await-delivery-step";
+
+const awaitDeliveryStep = createStep(
+  { name: awaitDeliveryStepId, async: true, timeout: 60 * 15 },
+  async function (_, { container }) {
+    const logger = container.resolve("logger");
+    logger.info("Awaiting delivery by driver...");
+  }
+);
+
+export default awaitDeliveryStep;
