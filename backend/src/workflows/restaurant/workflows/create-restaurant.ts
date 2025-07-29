@@ -1,6 +1,6 @@
 import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
 import { CreateRestaurantDTO } from "../../../modules/restaurant/types/mutations";
-import { createRestaurantStep } from "./steps";
+import { createRestaurantStep } from "../steps";
 
 const createRestaurantWorkflowId = "create-restaurant-workflow";
 

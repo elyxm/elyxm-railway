@@ -3,7 +3,7 @@ import { AdminCreateProduct } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
 import { z } from "zod";
 import { deleteProductsWorkflow } from "../../../../../../node_modules/@medusajs/core-flows";
-import { createRestaurantProductsWorkflow } from "../../../../../workflows/restaurant";
+import { createRestaurantProductsWorkflow } from "../../../../../workflows";
 
 const createSchema = z.object({
   products: z.array(z.custom<AdminCreateProduct>()),
