@@ -1,12 +1,14 @@
 import { MedusaError } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/workflows-sdk";
-import { DELIVERY_MODULE } from "../../../modules/delivery";
-import DeliveryModuleService from "../../../modules/delivery/service";
-import { DriverDTO } from "../../../modules/delivery/types/common";
-import { RESTAURANT_MODULE } from "../../../modules/restaurant";
-import RestaurantModuleService from "../../../modules/restaurant/service";
-import { RestaurantAdminDTO } from "../../../modules/restaurant/types/common";
-import { CreateDriverInput, CreateRestaurantAdminInput } from "../workflows/create-user";
+import { CreateDriverInput, CreateRestaurantAdminInput } from "../";
+import {
+  DELIVERY_MODULE,
+  DeliveryModuleService,
+  DriverDTO,
+  RESTAURANT_MODULE,
+  RestaurantAdminDTO,
+  RestaurantModuleService,
+} from "../../../modules";
 
 type CreateUserStepInput = (CreateRestaurantAdminInput | CreateDriverInput) & {
   actor_type: "restaurant" | "driver";
@@ -18,7 +20,8 @@ type CompensationStepInput = {
 };
 
 export const createUserStepId = "create-user-step";
-export const createUserStep = createStep(
+
+const createUserStep = createStep(
   createUserStepId,
   async (
     input: CreateUserStepInput,
@@ -74,3 +77,5 @@ export const createUserStep = createStep(
     }
   }
 );
+
+export default createUserStep;
