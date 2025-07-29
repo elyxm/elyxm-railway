@@ -1,5 +1,5 @@
+import { LinkDefinition } from "@medusajs/framework/types";
 import { Modules } from "@medusajs/framework/utils";
-import { LinkDefinition } from "@medusajs/types";
 import { createWorkflow, transform, WorkflowData, WorkflowResponse } from "@medusajs/workflows-sdk";
 import { createDeliveryStep } from "../";
 import { createRemoteLinkStep } from "../../../../node_modules/@medusajs/core-flows";
