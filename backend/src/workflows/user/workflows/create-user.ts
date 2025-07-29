@@ -1,6 +1,6 @@
-import { setAuthAppMetadataStep } from "@medusajs/core-flows";
 import { createWorkflow, transform, WorkflowData, WorkflowResponse } from "@medusajs/workflows-sdk";
-import { createUserStep } from "../steps/create-user";
+import { setAuthAppMetadataStep } from "../../../../node_modules/@medusajs/core-flows";
+import createUserStep from "../steps/create-user";
 
 export type CreateRestaurantAdminInput = {
   restaurant_id: string;
@@ -17,28 +17,35 @@ export type CreateDriverInput = {
   avatar_url?: string;
 };
 
-type WorkflowInput = {
+export type CreateUserWorkflowInput = {
   user: (CreateRestaurantAdminInput | CreateDriverInput) & {
     actor_type: "restaurant" | "driver";
   };
   auth_identity_id: string;
 };
 
-export const createUserWorkflow = createWorkflow("create-user-workflow", function (input: WorkflowData<WorkflowInput>) {
-  let user = createUserStep(input.user);
+export const createUserWorkflowId = "create-user-workflow";
 
-  const authUserInput = transform({ input, user }, ({ input, user }) => {
-    const data = {
-      authIdentityId: input.auth_identity_id,
-      actorType: input.user.actor_type,
-      key: input.user.actor_type === "restaurant" ? "restaurant_id" : "driver_id",
-      value: user.id,
-    };
+const createUserWorkflow = createWorkflow(
+  createUserWorkflowId,
+  function (input: WorkflowData<CreateUserWorkflowInput>) {
+    let user = createUserStep(input.user);
 
-    return data;
-  });
+    const authUserInput = transform({ input, user }, ({ input, user }) => {
+      const data = {
+        authIdentityId: input.auth_identity_id,
+        actorType: input.user.actor_type,
+        key: input.user.actor_type === "restaurant" ? "restaurant_id" : "driver_id",
+        value: user.id,
+      };
 
-  setAuthAppMetadataStep(authUserInput);
+      return data;
+    });
 
-  return new WorkflowResponse(user);
-});
+    setAuthAppMetadataStep(authUserInput);
+
+    return new WorkflowResponse(user);
+  }
+);
+
+export default createUserWorkflow;
