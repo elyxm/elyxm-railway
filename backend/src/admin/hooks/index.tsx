@@ -14,7 +14,7 @@ export const useDrivers = (
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        const response = await fetch("/admin/drivers" + (query ? `?${filterQuery}` : ""));
+        const response = await fetch("/store/drivers" + (query ? `?${filterQuery}` : ""));
         const result = await response.json();
         setData(result);
       } catch (error) {
@@ -44,7 +44,7 @@ export const useDeliveries = (
   useEffect(() => {
     const fetchDeliveries = async () => {
       try {
-        const response = await fetch("/admin/deliveries" + (query ? `?${filterQuery}` : ""));
+        const response = await fetch("/store/deliveries" + (query ? `?${filterQuery}` : ""));
         const result = await response.json();
         setData(result);
       } catch (error) {
