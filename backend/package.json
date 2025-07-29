@@ -14,8 +14,11 @@
   ],
   "scripts": {
     "build": "medusa build && node src/scripts/postBuild.js",
-    "seed": "medusa exec ./src/scripts/seed.ts",
-    "migrate": "medusa db:migrate",
+    "db:seed": "medusa exec ./src/scripts/seed.ts",
+    "db:migrate": "medusa db:migrate",
+    "db:generate:delivery": "medusa db:generate delivery",
+    "db:generate:restaurant": "medusa db:generate restaurant",
+    "db:sync-links": "npx medusa db:sync-links",
     "ib": "init-backend",
     "start": "init-backend && cd .medusa/server && medusa start --verbose",
     "dev": "medusa develop",

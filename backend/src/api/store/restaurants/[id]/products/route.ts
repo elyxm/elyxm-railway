@@ -1,15 +1,15 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { AdminCreateProduct } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
 import { z } from "zod";
 import { deleteProductsWorkflow } from "../../../../../../node_modules/@medusajs/core-flows";
-import { createRestaurantProductsWorkflow } from "../../../../../workflows/restaurant";
+import { createRestaurantProductsWorkflow } from "../../../../../workflows";
 
 const createSchema = z.object({
   products: z.array(z.custom<AdminCreateProduct>()),
 });
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
+export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const validatedBody = createSchema.parse(req.body);
 
   const { result: restaurantProducts } = await createRestaurantProductsWorkflow(req.scope).run({
@@ -33,23 +33,16 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const restaurantProductsQuery = {
-    entity: "product",
+    entity: "restaurant",
     filters: {
-      restaurant: restaurantId,
+      id: restaurantId,
     },
     fields: [
       "id",
-      "title",
-      "description",
-      "thumbnail",
-      "categories.*",
-      "categories.id",
-      "categories.name",
-      "variants.*",
-      "variants.id",
-      "variants.price_set.*",
-      "variants.price_set.id",
-      "restaurant.*",
+      "products.*",
+      "products.categories.*",
+      "products.variants.*",
+      "products.variants.calculated_price.*",
     ],
   };
 
