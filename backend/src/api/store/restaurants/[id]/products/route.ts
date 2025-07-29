@@ -33,23 +33,16 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const restaurantProductsQuery = {
-    entity: "product",
+    entity: "restaurant",
     filters: {
-      restaurant: restaurantId,
+      id: restaurantId,
     },
     fields: [
       "id",
-      "title",
-      "description",
-      "thumbnail",
-      "categories.*",
-      "categories.id",
-      "categories.name",
-      "variants.*",
-      "variants.id",
-      "variants.price_set.*",
-      "variants.price_set.id",
-      "restaurant.*",
+      "products.*",
+      "products.categories.*",
+      "products.variants.*",
+      "products.variants.calculated_price.*",
     ],
   };
 
