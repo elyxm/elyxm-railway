@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:latest
+    container_name: elyxm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - elyxm_redis_data:/data
+
+volumes:
+  elyxm_redis_data:
+    driver: local

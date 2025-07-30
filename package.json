@@ -1,0 +1,26 @@
+{
+  "name": "elyxm-railway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:backend": "cd backend && pnpm dev",
+    "dev:storefront": "cd storefront && pnpm dev",
+    "dev": "pnpm dev:backend & pnpm dev:storefront",
+    "build:backend": "cd backend && pnpm build",
+    "build:storefront": "pnpm build --prefix storefront",
+    "build": "pnpm build:backend & pnpm build:storefront",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker ps",
+    "redis:cli": "docker exec -it elyxm-redis redis-cli",
+    "redis:keys": "docker exec -it elyxm-redis redis-cli KEYS \"*\"",
+    "redis:flush:all": "docker exec -it elyxm-redis redis-cli FLUSHALL",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+}

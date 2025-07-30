@@ -4,9 +4,12 @@ import {
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
-} from "@medusajs/framework";
-import { MedusaError } from "@medusajs/utils";
+} from "@medusajs/framework/http";
+import { HttpTypes } from "@medusajs/types";
+import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
 import { Request } from "express";
+import { CACHE_CONFIGS } from "../lib/constants";
+import { createCacheHelper } from "./utils/cache-helper";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
   const { restaurant_id, driver_id } = req.auth_context?.app_metadata ?? {};
@@ -27,6 +30,46 @@ const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/store/products", // ℹ️ The core API route we want to cache
+      method: "GET",
+      middlewares: [
+        async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+          const cacheService = req.scope.resolve(ModuleRegistrationName.CACHE);
+          const logger = req.scope.resolve("logger");
+
+          // Create cache helper for products
+          const productCacheHelper = createCacheHelper(cacheService, CACHE_CONFIGS.PRODUCTS, { logger });
+
+          // Try to get cached response based on query parameters
+          const cachedProducts = await productCacheHelper.getByQuery<HttpTypes.StoreProductListResponse>(
+            req.query || {}
+          );
+
+          if (cachedProducts) {
+            const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
+            productCacheHelper.logCacheResult(true, cacheKey);
+            res.json(cachedProducts);
+            return;
+          }
+
+          // Cache miss - log and set up response caching
+          const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
+          productCacheHelper.logCacheResult(false, cacheKey);
+
+          const originalJsonFn = res.json;
+          Object.assign(res, {
+            json: async function (body: HttpTypes.StoreProductListResponse) {
+              // Cache the response using query parameters
+              await productCacheHelper.setByQuery(req.query || {}, body);
+              await originalJsonFn.call(res, body);
+            },
+          });
+
+          next();
+        },
+      ],
+    },
     {
       matcher: "/test*",
       middlewares: [
