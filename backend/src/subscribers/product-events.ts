@@ -15,7 +15,7 @@ export default async function productEventsHandler({ container }: SubscriberArgs
   }
 
   logger.info(`[${new Date().toISOString()}] Busting product cache. New version: ${cacheVersion}`);
-  await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 31536000); // 1 year in seconds
+  await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 24 * 60 * 60); // 24 hours in seconds
 }
 
 export const config: SubscriberConfig = {

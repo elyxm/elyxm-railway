@@ -41,7 +41,7 @@ export default defineMiddlewares({
           let cacheVersion = await cacheService.get<number>(PRODUCTS_CACHE_VERSION_KEY);
           if (cacheVersion === null) {
             cacheVersion = 1;
-            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 31536000); // 1 year in seconds
+            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 24 * 60 * 60); // 24 hours in seconds
           }
 
           const queryParams = JSON.stringify(req.query || {});
