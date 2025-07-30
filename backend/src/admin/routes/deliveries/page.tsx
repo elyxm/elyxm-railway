@@ -1,7 +1,5 @@
-import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Container, Heading, Table, Text } from "@medusajs/ui";
 import DeliveryRow from "../../components/delivery-row";
-import { PizzaIcon } from "../../components/icons";
 import { useDeliveries } from "../../hooks";
 
 const Deliveries = () => {
@@ -38,9 +36,9 @@ const Deliveries = () => {
   );
 };
 
-export const config = defineRouteConfig({
-  label: "Deliveries",
-  icon: PizzaIcon,
-});
+// export const config = defineRouteConfig({
+//   label: "Deliveries",
+//   icon: PizzaIcon,
+// });
 
 export default Deliveries;
