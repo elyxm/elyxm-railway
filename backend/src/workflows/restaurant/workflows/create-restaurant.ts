@@ -8,6 +8,8 @@ const createRestaurantWorkflow = createWorkflow(createRestaurantWorkflowId, func
   const restaurant = createRestaurantStep({
     name: input.name,
     handle: input.handle,
+    description: input.description,
+    is_open: input.is_open,
     address: input.address,
     phone: input.phone,
     email: input.email,

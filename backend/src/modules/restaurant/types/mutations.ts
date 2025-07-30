@@ -3,6 +3,7 @@ import { CreateProductDTO } from "@medusajs/types";
 export interface CreateRestaurantDTO {
   name: string;
   handle: string;
+  description?: string;
   address?: string;
   phone?: string;
   email?: string;
