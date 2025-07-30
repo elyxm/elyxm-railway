@@ -7,9 +7,9 @@ import {
 } from "@medusajs/framework/http";
 import { HttpTypes } from "@medusajs/types";
 import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
-import { createHash } from "crypto";
 import { Request } from "express";
-import { DEFAULT_CACHE_DURATION, PRODUCTS_CACHE_VERSION_KEY } from "../lib/constants";
+import { CACHE_CONFIGS } from "../lib/constants";
+import { createCacheHelper } from "./utils/cache-helper";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
   const { restaurant_id, driver_id } = req.auth_context?.app_metadata ?? {};
@@ -38,31 +38,30 @@ export default defineMiddlewares({
           const cacheService = req.scope.resolve(ModuleRegistrationName.CACHE);
           const logger = req.scope.resolve("logger");
 
-          let cacheVersion = await cacheService.get<number>(PRODUCTS_CACHE_VERSION_KEY);
-          if (cacheVersion === null) {
-            cacheVersion = 1;
-            console.log("DEFAULT_CACHE_DURATION", DEFAULT_CACHE_DURATION);
-            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, DEFAULT_CACHE_DURATION);
-          }
+          // Create cache helper for products
+          const productCacheHelper = createCacheHelper(cacheService, CACHE_CONFIGS.PRODUCTS, { logger });
 
-          const queryParams = JSON.stringify(req.query || {});
-          const hash = createHash("sha256").update(queryParams).digest("hex");
-          const cacheKey = `${PRODUCTS_CACHE_VERSION_KEY}:${cacheVersion}:${hash}`;
-
-          const cachedProducts = await cacheService.get<HttpTypes.StoreProductListResponse>(cacheKey);
+          // Try to get cached response based on query parameters
+          const cachedProducts = await productCacheHelper.getByQuery<HttpTypes.StoreProductListResponse>(
+            req.query || {}
+          );
 
           if (cachedProducts) {
-            logger.info(`[${new Date().toISOString()}] Cache HIT for key: ${cacheKey}`);
+            const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
+            productCacheHelper.logCacheResult(true, cacheKey);
             res.json(cachedProducts);
             return;
           }
 
-          logger.info(`[${new Date().toISOString()}] Cache MISS for key: ${cacheKey}`);
+          // Cache miss - log and set up response caching
+          const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
+          productCacheHelper.logCacheResult(false, cacheKey);
 
           const originalJsonFn = res.json;
           Object.assign(res, {
             json: async function (body: HttpTypes.StoreProductListResponse) {
-              await cacheService.set(cacheKey, body, DEFAULT_CACHE_DURATION);
+              // Cache the response using query parameters
+              await productCacheHelper.setByQuery(req.query || {}, body);
               await originalJsonFn.call(res, body);
             },
           });

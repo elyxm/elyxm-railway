@@ -105,4 +105,34 @@ export const PRODUCTS_CACHE_VERSION_KEY = "cache:products";
 
 export const DEFAULT_CACHE_DURATION = process.env.DEFAULT_CACHE_DURATION
   ? parseInt(process.env.DEFAULT_CACHE_DURATION)
-  : 2 * 60 * 60; // 1 hours in seconds
+  : 2 * 60 * 60; // 2 hours in seconds
+
+/**
+ * Cache configurations for different data types
+ */
+export const CACHE_CONFIGS = {
+  PRODUCTS: {
+    versionKey: "cache:products:version",
+    keyPrefix: "cache:products",
+  },
+  ORDERS: {
+    versionKey: "cache:orders:version",
+    keyPrefix: "cache:orders",
+  },
+  CUSTOMERS: {
+    versionKey: "cache:customers:version",
+    keyPrefix: "cache:customers",
+  },
+  CATEGORIES: {
+    versionKey: "cache:categories:version",
+    keyPrefix: "cache:categories",
+  },
+  COLLECTIONS: {
+    versionKey: "cache:collections:version",
+    keyPrefix: "cache:collections",
+  },
+  INVENTORY: {
+    versionKey: "cache:inventory:version",
+    keyPrefix: "cache:inventory",
+  },
+} as const;

@@ -1,21 +1,18 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/medusa";
 import { ICacheService } from "@medusajs/types";
 import { ModuleRegistrationName } from "@medusajs/utils";
-import { DEFAULT_CACHE_DURATION, PRODUCTS_CACHE_VERSION_KEY } from "../lib/constants";
+import { createCacheHelper } from "../api/utils/cache-helper";
+import { CACHE_CONFIGS } from "../lib/constants";
 
 export default async function productEventsHandler({ container }: SubscriberArgs<Record<string, any>>) {
   const cacheService: ICacheService = container.resolve(ModuleRegistrationName.CACHE);
   const logger = container.resolve("logger");
 
-  let cacheVersion = await cacheService.get<number>(PRODUCTS_CACHE_VERSION_KEY);
+  // Create cache helper for products
+  const productCacheHelper = createCacheHelper(cacheService, CACHE_CONFIGS.PRODUCTS, { logger });
 
-  // Simply increment the cache version without trying to delete old keys
-  // The cache middleware will naturally ignore stale cached entries since
-  // they'll have old version numbers in their keys
-  const newCacheVersion = (cacheVersion || 0) + 1;
-
-  logger.info(`[${new Date().toISOString()}] Busting product cache. New version: ${newCacheVersion}`);
-  await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, newCacheVersion, DEFAULT_CACHE_DURATION);
+  // Bust the product cache - this will increment the version
+  await productCacheHelper.bustCache();
 }
 
 export const config: SubscriberConfig = {
