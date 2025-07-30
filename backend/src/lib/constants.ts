@@ -100,3 +100,5 @@ export const WORKER_MODE = (process.env.MEDUSA_WORKER_MODE as "worker" | "server
  * Disable Admin
  */
 export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === "true";
+
+export const PRODUCTS_CACHE_VERSION_KEY = "cache:products";

@@ -4,10 +4,12 @@ import {
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
-} from "@medusajs/framework";
+} from "@medusajs/framework/http";
 import { HttpTypes } from "@medusajs/types";
-import { MedusaError, Modules } from "@medusajs/utils";
+import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
+import { createHash } from "crypto";
 import { Request } from "express";
+import { PRODUCTS_CACHE_VERSION_KEY } from "../lib/constants";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
   const { restaurant_id, driver_id } = req.auth_context?.app_metadata ?? {};
@@ -33,23 +35,33 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [
         async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
-          const cacheModule = req.scope.resolve(Modules.CACHE);
+          const cacheService = req.scope.resolve(ModuleRegistrationName.CACHE);
+          const logger = req.scope.resolve("logger");
 
-          // ℹ️ This is the part responsible for retrieving the products from the cache
-          const cacheKey = `medusa:products`;
-          const cachedProducts = await cacheModule.get<HttpTypes.StoreProductListResponse>(cacheKey);
+          let cacheVersion = await cacheService.get<number>(PRODUCTS_CACHE_VERSION_KEY);
+          if (cacheVersion === null) {
+            cacheVersion = 1;
+            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 31536000); // 1 year in seconds
+          }
+
+          const queryParams = JSON.stringify(req.query || {});
+          const hash = createHash("sha256").update(queryParams).digest("hex");
+          const cacheKey = `cache:key:products:${cacheVersion}:${hash}`;
+
+          const cachedProducts = await cacheService.get<HttpTypes.StoreProductListResponse>(cacheKey);
 
           if (cachedProducts) {
+            logger.info(`[${new Date().toISOString()}] Cache HIT for key: ${cacheKey}`);
             res.json(cachedProducts);
             return;
           }
 
-          // ℹ️ This is the part responsible for caching the products after they are retrieved from the database
+          logger.info(`[${new Date().toISOString()}] Cache MISS for key: ${cacheKey}`);
+
           const originalJsonFn = res.json;
           Object.assign(res, {
             json: async function (body: HttpTypes.StoreProductListResponse) {
-              const CACHE_DURATION_IN_MINUTES = 10;
-              await cacheModule.set(cacheKey, body, CACHE_DURATION_IN_MINUTES * 60); // convert minutes to seconds
+              await cacheService.set(cacheKey, body, 24 * 60 * 60); // cache for 24 hours
               await originalJsonFn.call(res, body);
             },
           });
