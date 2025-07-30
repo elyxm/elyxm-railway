@@ -22,7 +22,7 @@ const Restaurants = () => {
   };
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="p-0">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <div>
@@ -38,7 +38,7 @@ const Restaurants = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 px-6 py-4 bg-ui-bg-subtle">
+      <div className="flex items-center gap-4 px-6 py-4">
         <div className="flex-1 max-w-md">
           <Input
             placeholder="Search restaurants..."

@@ -202,14 +202,6 @@ export const RestaurantListTable = ({ searchQuery, statusFilter }: RestaurantLis
   return (
     <div className="flex-1">
       <DataTable instance={table}>
-        <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center px-6">
-          <div className="flex items-center gap-2">
-            <Text weight="plus">
-              {filteredData.length} restaurant{filteredData.length !== 1 ? "s" : ""}
-              {searchQuery && ` matching "${searchQuery}"`}
-            </Text>
-          </div>
-        </DataTable.Toolbar>
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
