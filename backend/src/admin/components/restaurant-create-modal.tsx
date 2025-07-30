@@ -1,4 +1,3 @@
-import { Plus } from "@medusajs/icons";
 import { Button, Drawer, toast } from "@medusajs/ui";
 import { useState } from "react";
 import { useCreateRestaurant } from "../hooks";
@@ -35,9 +34,9 @@ const RestaurantCreateModal = ({ onSuccess }: RestaurantCreateModalProps) => {
 
   return (
     <>
-      <Button variant="primary" onClick={() => setOpen(true)}>
-        <Plus className="mr-2" />
-        Add Restaurant
+      <Button size="small" variant="secondary" onClick={() => setOpen(true)}>
+        {/* <Plus className="mr-2" /> */}
+        Create
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>

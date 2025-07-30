@@ -55,10 +55,93 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    console.log("Admin: Fetching restaurants...");
+    console.log("Admin: Fetching restaurants...", req.query);
 
-    const { currency_code = "eur", ...queryFilters } = req.query;
+    const {
+      currency_code = "eur",
+      limit = "20",
+      offset = "0",
+      order = "created_at:desc",
+      q,
+      is_open,
+      phone,
+      email,
+      address,
+      created_at,
+      updated_at,
+      ...otherFilters
+    } = req.query;
+
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+
+    // Build filters object
+    const filters: any = { ...otherFilters };
+
+    // Handle search query
+    if (q) {
+      filters.$or = [
+        { name: { $ilike: `%${q}%` } },
+        { description: { $ilike: `%${q}%` } },
+        { email: { $ilike: `%${q}%` } },
+        { address: { $ilike: `%${q}%` } },
+      ];
+    }
+
+    // Handle boolean filters
+    if (is_open !== undefined) {
+      filters.is_open = is_open === "true";
+    }
+
+    // Handle text filters
+    if (phone) {
+      if (phone === "true") {
+        filters.phone = { $ne: null };
+      } else if (phone === "false") {
+        filters.phone = null;
+      }
+    }
+
+    if (email) {
+      if (email === "true") {
+        filters.email = { $ne: null };
+      } else if (email === "false") {
+        filters.email = null;
+      }
+    }
+
+    // Handle date filters
+    if (created_at) {
+      try {
+        const dateFilter = JSON.parse(created_at as string);
+        if (dateFilter.gte || dateFilter.lte) {
+          filters.created_at = dateFilter;
+        }
+      } catch (e) {
+        console.warn("Invalid created_at filter:", created_at);
+      }
+    }
+
+    if (updated_at) {
+      try {
+        const dateFilter = JSON.parse(updated_at as string);
+        if (dateFilter.gte || dateFilter.lte) {
+          filters.updated_at = dateFilter;
+        }
+      } catch (e) {
+        console.warn("Invalid updated_at filter:", updated_at);
+      }
+    }
+
+    // Parse pagination
+    const limitNum = parseInt(limit as string, 10);
+    const offsetNum = parseInt(offset as string, 10);
+
+    // Parse ordering
+    let orderBy: any = {};
+    if (order) {
+      const [field, direction] = (order as string).split(":");
+      orderBy[field] = direction === "desc" ? "DESC" : "ASC";
+    }
 
     const restaurantsQuery = {
       entity: "restaurant",
@@ -79,7 +162,12 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
         "products.variants.*",
         "products.variants.calculated_price.*",
       ],
-      filters: queryFilters,
+      filters,
+      pagination: {
+        skip: offsetNum,
+        take: limitNum,
+        order: orderBy,
+      },
       context: {
         products: {
           variants: {
@@ -91,10 +179,15 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       },
     };
 
-    const { data: restaurants } = await query.graph(restaurantsQuery);
-    console.log(`Admin: Found ${restaurants?.length || 0} restaurants`);
+    const { data: restaurants, metadata } = await query.graph(restaurantsQuery);
+    console.log(`Admin: Found ${restaurants?.length || 0} restaurants (total: ${metadata?.count || 0})`);
 
-    return res.status(200).json({ restaurants });
+    return res.status(200).json({
+      restaurants,
+      count: metadata?.count || 0,
+      limit: limitNum,
+      offset: offsetNum,
+    });
   } catch (error) {
     console.error("Admin: Error fetching restaurants:", error);
     return res.status(500).json({
