@@ -125,6 +125,22 @@ export class VersionedCacheHelper {
 
 /**
  * Factory function to create cache helpers for different data types
+ *
+ * @param cacheService - The Medusa cache service instance
+ * @param config - Cache configuration with version key and key prefix
+ * @param options - Optional settings like TTL and logger
+ * @returns VersionedCacheHelper instance
+ *
+ * @example
+ * ```typescript
+ * const cacheHelper = createCacheHelper(
+ *   cacheService,
+ *   CACHE_CONFIGS.PRODUCTS,
+ *   { logger, ttl: 3600 }
+ * );
+ * ```
+ *
+ * @see backend/docs/cache.md for complete usage documentation
  */
 export function createCacheHelper(
   cacheService: ICacheService,
@@ -133,110 +149,3 @@ export function createCacheHelper(
 ): VersionedCacheHelper {
   return new VersionedCacheHelper(cacheService, config, options);
 }
-
-/* ========================================================================
- * USAGE EXAMPLES
- * ======================================================================== */
-
-/**
- * Example 1: Generic cache middleware factory for any endpoint
- *
- * Usage:
- * import { CACHE_CONFIGS } from "../../lib/constants";
- * import { createGenericCacheMiddleware } from "./cache-helper";
- *
- * // For orders endpoint
- * const ordersCacheMiddleware = createGenericCacheMiddleware('ORDERS');
- *
- * // For categories endpoint
- * const categoriesCacheMiddleware = createGenericCacheMiddleware('CATEGORIES');
- */
-/*
-export function createGenericCacheMiddleware(cacheConfigKey: keyof typeof CACHE_CONFIGS) {
-  return async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
-    const cacheService = req.scope.resolve(ModuleRegistrationName.CACHE);
-    const logger = req.scope.resolve("logger");
-
-    const cacheHelper = createCacheHelper(
-      cacheService,
-      CACHE_CONFIGS[cacheConfigKey],
-      { logger }
-    );
-
-    const cached = await cacheHelper.getByQuery(req.query || {});
-
-    if (cached) {
-      const cacheKey = await cacheHelper.generateQueryCacheKey(req.query || {});
-      cacheHelper.logCacheResult(true, cacheKey);
-      res.json(cached);
-      return;
-    }
-
-    const cacheKey = await cacheHelper.generateQueryCacheKey(req.query || {});
-    cacheHelper.logCacheResult(false, cacheKey);
-
-    const originalJsonFn = res.json;
-    Object.assign(res, {
-      json: async function (body: any) {
-        await cacheHelper.setByQuery(req.query || {}, body);
-        await originalJsonFn.call(res, body);
-      },
-    });
-
-    next();
-  };
-}
-*/
-
-/**
- * Example 2: Cache specific item by ID
- *
- * Usage:
- * const customerCacheHelper = createCacheHelper(
- *   cacheService,
- *   CACHE_CONFIGS.CUSTOMERS,
- *   { logger }
- * );
- *
- * // Cache customer data
- * await customerCacheHelper.set(customerId, customerData);
- *
- * // Get cached customer
- * const customer = await customerCacheHelper.get(customerId);
- */
-
-/**
- * Example 3: Bust cache in subscribers
- *
- * Usage in order-events subscriber:
- *
- * export default async function orderEventsHandler({ container }) {
- *   const cacheService = container.resolve(ModuleRegistrationName.CACHE);
- *   const logger = container.resolve("logger");
- *
- *   const orderCacheHelper = createCacheHelper(
- *     cacheService,
- *     CACHE_CONFIGS.ORDERS,
- *     { logger }
- *   );
- *
- *   await orderCacheHelper.bustCache();
- * }
- */
-
-/**
- * Example 4: Cache in workflows
- *
- * Usage:
- * const step = createStep("cache-data", async ({ data }, { container }) => {
- *   const cacheService = container.resolve(ModuleRegistrationName.CACHE);
- *
- *   const cacheHelper = createCacheHelper(
- *     cacheService,
- *     CACHE_CONFIGS.INVENTORY,
- *     {}
- *   );
- *
- *   await cacheHelper.set(data.itemId, data.inventoryData);
- * });
- */
