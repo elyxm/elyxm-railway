@@ -63,26 +63,40 @@ export const useDeliveries = (
 export const useRestaurants = (
   query?: Record<string, any>
 ): {
-  data: { restaurants: RestaurantDTO[] } | null;
+  data: { restaurants: RestaurantDTO[]; count?: number; limit?: number; offset?: number } | null;
   loading: boolean;
+  error: string | null;
   refetch: () => void;
 } => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const filterQuery = new URLSearchParams(query).toString();
+  const [error, setError] = useState<string | null>(null);
 
   const fetchRestaurants = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch("/admin/restaurants" + (query ? `?${filterQuery}` : ""));
+      // Clean up query parameters
+      const cleanQuery = { ...query };
+      Object.keys(cleanQuery).forEach((key) => {
+        if (cleanQuery[key] === undefined || cleanQuery[key] === null || cleanQuery[key] === "") {
+          delete cleanQuery[key];
+        }
+      });
+
+      const filterQuery = new URLSearchParams(cleanQuery).toString();
+      const response = await fetch("/admin/restaurants" + (filterQuery ? `?${filterQuery}` : ""));
+
       if (!response.ok) {
         throw new Error(`Failed to fetch restaurants: ${response.statusText}`);
       }
+
       const result = await response.json();
-      console.log(result);
       setData(result);
     } catch (error) {
-      console.error("Error fetching the data", error);
+      console.error("Error fetching restaurants:", error);
+      setError(error instanceof Error ? error.message : "Unknown error occurred");
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -90,9 +104,9 @@ export const useRestaurants = (
 
   useEffect(() => {
     fetchRestaurants();
-  }, []);
+  }, [JSON.stringify(query)]);
 
-  return { data, loading, refetch: fetchRestaurants };
+  return { data, loading, error, refetch: fetchRestaurants };
 };
 
 export const useRestaurant = (
