@@ -9,7 +9,7 @@ import { HttpTypes } from "@medusajs/types";
 import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
 import { createHash } from "crypto";
 import { Request } from "express";
-import { PRODUCTS_CACHE_VERSION_KEY } from "../lib/constants";
+import { DEFAULT_CACHE_DURATION, PRODUCTS_CACHE_VERSION_KEY } from "../lib/constants";
 
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
   const { restaurant_id, driver_id } = req.auth_context?.app_metadata ?? {};
@@ -41,12 +41,13 @@ export default defineMiddlewares({
           let cacheVersion = await cacheService.get<number>(PRODUCTS_CACHE_VERSION_KEY);
           if (cacheVersion === null) {
             cacheVersion = 1;
-            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, 24 * 60 * 60); // 24 hours in seconds
+            console.log("DEFAULT_CACHE_DURATION", DEFAULT_CACHE_DURATION);
+            await cacheService.set(PRODUCTS_CACHE_VERSION_KEY, cacheVersion, DEFAULT_CACHE_DURATION);
           }
 
           const queryParams = JSON.stringify(req.query || {});
           const hash = createHash("sha256").update(queryParams).digest("hex");
-          const cacheKey = `cache:key:products:${cacheVersion}:${hash}`;
+          const cacheKey = `${PRODUCTS_CACHE_VERSION_KEY}:${cacheVersion}:${hash}`;
 
           const cachedProducts = await cacheService.get<HttpTypes.StoreProductListResponse>(cacheKey);
 
@@ -61,7 +62,7 @@ export default defineMiddlewares({
           const originalJsonFn = res.json;
           Object.assign(res, {
             json: async function (body: HttpTypes.StoreProductListResponse) {
-              await cacheService.set(cacheKey, body, 24 * 60 * 60); // cache for 24 hours
+              await cacheService.set(cacheKey, body, DEFAULT_CACHE_DURATION);
               await originalJsonFn.call(res, body);
             },
           });

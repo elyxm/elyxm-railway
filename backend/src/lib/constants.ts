@@ -102,3 +102,7 @@ export const WORKER_MODE = (process.env.MEDUSA_WORKER_MODE as "worker" | "server
 export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === "true";
 
 export const PRODUCTS_CACHE_VERSION_KEY = "cache:products";
+
+export const DEFAULT_CACHE_DURATION = process.env.DEFAULT_CACHE_DURATION
+  ? parseInt(process.env.DEFAULT_CACHE_DURATION)
+  : 2 * 60 * 60; // 1 hours in seconds
