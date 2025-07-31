@@ -26,6 +26,7 @@ import {
 import { CLIENT_MODULE } from "./src/modules/client";
 import { COCKTAIL_MODULE } from "./src/modules/cocktail";
 import { DELIVERY_MODULE } from "./src/modules/delivery";
+import { INVITATION_MODULE } from "./src/modules/invitation";
 import { RBAC_MODULE } from "./src/modules/rbac";
 import { RESTAURANT_MODULE } from "./src/modules/restaurant";
 
@@ -190,6 +191,10 @@ const medusaConfig = {
     {
       key: COCKTAIL_MODULE,
       resolve: "./src/modules/cocktail",
+    },
+    {
+      key: INVITATION_MODULE,
+      resolve: "./src/modules/invitation",
     },
   ],
   plugins: [

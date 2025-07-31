@@ -46,7 +46,9 @@
             "client",
             "user",
             "role",
-            "restaurant"
+            "restaurant",
+            "import",
+            "analytics"
           ],
           "mappedType": "enum"
         },
@@ -63,7 +65,11 @@
             "update",
             "delete",
             "manage",
-            "assign"
+            "assign",
+            "grant",
+            "revoke",
+            "import",
+            "export"
           ],
           "mappedType": "enum"
         },
