@@ -1,0 +1,247 @@
+[
+  {
+    "name": "Cocktail Create",
+    "slug": "cocktail:create",
+    "resource": "cocktail",
+    "action": "create",
+    "description": "Permission to create cocktail"
+  },
+  {
+    "name": "Cocktail Read",
+    "slug": "cocktail:read",
+    "resource": "cocktail",
+    "action": "read",
+    "description": "Permission to read cocktail"
+  },
+  {
+    "name": "Cocktail Update",
+    "slug": "cocktail:update",
+    "resource": "cocktail",
+    "action": "update",
+    "description": "Permission to update cocktail"
+  },
+  {
+    "name": "Cocktail Delete",
+    "slug": "cocktail:delete",
+    "resource": "cocktail",
+    "action": "delete",
+    "description": "Permission to delete cocktail"
+  },
+  {
+    "name": "Cocktail Manage",
+    "slug": "cocktail:manage",
+    "resource": "cocktail",
+    "action": "manage",
+    "description": "Permission to manage cocktail"
+  },
+  {
+    "name": "Cocktail Assign",
+    "slug": "cocktail:assign",
+    "resource": "cocktail",
+    "action": "assign",
+    "description": "Permission to assign cocktail access"
+  },
+  {
+    "name": "Ingredient Create",
+    "slug": "ingredient:create",
+    "resource": "ingredient",
+    "action": "create",
+    "description": "Permission to create ingredient"
+  },
+  {
+    "name": "Ingredient Read",
+    "slug": "ingredient:read",
+    "resource": "ingredient",
+    "action": "read",
+    "description": "Permission to read ingredient"
+  },
+  {
+    "name": "Ingredient Update",
+    "slug": "ingredient:update",
+    "resource": "ingredient",
+    "action": "update",
+    "description": "Permission to update ingredient"
+  },
+  {
+    "name": "Ingredient Delete",
+    "slug": "ingredient:delete",
+    "resource": "ingredient",
+    "action": "delete",
+    "description": "Permission to delete ingredient"
+  },
+  {
+    "name": "Ingredient Manage",
+    "slug": "ingredient:manage",
+    "resource": "ingredient",
+    "action": "manage",
+    "description": "Permission to manage ingredient"
+  },
+  {
+    "name": "Ingredient Assign",
+    "slug": "ingredient:assign",
+    "resource": "ingredient",
+    "action": "assign",
+    "description": "Permission to assign ingredient access"
+  },
+  {
+    "name": "Client Create",
+    "slug": "client:create",
+    "resource": "client",
+    "action": "create",
+    "description": "Permission to create client"
+  },
+  {
+    "name": "Client Read",
+    "slug": "client:read",
+    "resource": "client",
+    "action": "read",
+    "description": "Permission to read client"
+  },
+  {
+    "name": "Client Update",
+    "slug": "client:update",
+    "resource": "client",
+    "action": "update",
+    "description": "Permission to update client"
+  },
+  {
+    "name": "Client Delete",
+    "slug": "client:delete",
+    "resource": "client",
+    "action": "delete",
+    "description": "Permission to delete client"
+  },
+  {
+    "name": "Client Manage",
+    "slug": "client:manage",
+    "resource": "client",
+    "action": "manage",
+    "description": "Permission to manage client"
+  },
+  {
+    "name": "User Create",
+    "slug": "user:create",
+    "resource": "user",
+    "action": "create",
+    "description": "Permission to create user"
+  },
+  {
+    "name": "User Read",
+    "slug": "user:read",
+    "resource": "user",
+    "action": "read",
+    "description": "Permission to read user"
+  },
+  {
+    "name": "User Update",
+    "slug": "user:update",
+    "resource": "user",
+    "action": "update",
+    "description": "Permission to update user"
+  },
+  {
+    "name": "User Delete",
+    "slug": "user:delete",
+    "resource": "user",
+    "action": "delete",
+    "description": "Permission to delete user"
+  },
+  {
+    "name": "User Assign",
+    "slug": "user:assign",
+    "resource": "user",
+    "action": "assign",
+    "description": "Permission to assign user roles"
+  },
+  {
+    "name": "User Manage",
+    "slug": "user:manage",
+    "resource": "user",
+    "action": "manage",
+    "description": "Permission to manage user"
+  },
+  {
+    "name": "Role Create",
+    "slug": "role:create",
+    "resource": "role",
+    "action": "create",
+    "description": "Permission to create role"
+  },
+  {
+    "name": "Role Read",
+    "slug": "role:read",
+    "resource": "role",
+    "action": "read",
+    "description": "Permission to read role"
+  },
+  {
+    "name": "Role Update",
+    "slug": "role:update",
+    "resource": "role",
+    "action": "update",
+    "description": "Permission to update role"
+  },
+  {
+    "name": "Role Delete",
+    "slug": "role:delete",
+    "resource": "role",
+    "action": "delete",
+    "description": "Permission to delete role"
+  },
+  {
+    "name": "Role Assign",
+    "slug": "role:assign",
+    "resource": "role",
+    "action": "assign",
+    "description": "Permission to assign role"
+  },
+  {
+    "name": "Role Manage",
+    "slug": "role:manage",
+    "resource": "role",
+    "action": "manage",
+    "description": "Permission to manage role"
+  },
+  {
+    "name": "Restaurant Create",
+    "slug": "restaurant:create",
+    "resource": "restaurant",
+    "action": "create",
+    "description": "Permission to create restaurant"
+  },
+  {
+    "name": "Restaurant Read",
+    "slug": "restaurant:read",
+    "resource": "restaurant",
+    "action": "read",
+    "description": "Permission to read restaurant"
+  },
+  {
+    "name": "Restaurant Update",
+    "slug": "restaurant:update",
+    "resource": "restaurant",
+    "action": "update",
+    "description": "Permission to update restaurant"
+  },
+  {
+    "name": "Restaurant Delete",
+    "slug": "restaurant:delete",
+    "resource": "restaurant",
+    "action": "delete",
+    "description": "Permission to delete restaurant"
+  },
+  {
+    "name": "Restaurant Assign",
+    "slug": "restaurant:assign",
+    "resource": "restaurant",
+    "action": "assign",
+    "description": "Permission to assign restaurant"
+  },
+  {
+    "name": "Restaurant Manage",
+    "slug": "restaurant:manage",
+    "resource": "restaurant",
+    "action": "manage",
+    "description": "Permission to manage restaurant"
+  }
+]

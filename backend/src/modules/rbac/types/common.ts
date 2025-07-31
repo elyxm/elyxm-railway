@@ -10,6 +10,8 @@ export enum ResourceType {
   USER = "user",
   ROLE = "role",
   RESTAURANT = "restaurant",
+  IMPORT = "import",
+  ANALYTICS = "analytics",
 }
 
 export enum ActionType {
@@ -19,7 +21,16 @@ export enum ActionType {
   DELETE = "delete",
   MANAGE = "manage",
   ASSIGN = "assign",
+  GRANT = "grant",
+  REVOKE = "revoke",
+  IMPORT = "import",
+  EXPORT = "export",
 }
+
+// Helper function to generate permission slug
+export const generatePermissionSlug = (resource: ResourceType, action: ActionType): string => {
+  return `${resource}:${action}`;
+};
 
 export interface RoleDTO {
   id: string;
