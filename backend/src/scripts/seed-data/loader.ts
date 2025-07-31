@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import {
+  ClientData,
   PermissionData,
   ProductCategory,
   ProductData,
@@ -80,6 +81,13 @@ export class SeedDataLoader {
   }
 
   /**
+   * Load the clients file
+   */
+  loadClients(): ClientData[] {
+    return this.loadJsonFile<ClientData[]>("clients.json");
+  }
+
+  /**
    * Load RBAC data (permissions and roles)
    */
   loadRBAC(): RBACData {
@@ -99,6 +107,7 @@ export class SeedDataLoader {
       products: this.loadProducts(),
       shipping: this.loadShipping(),
       rbac: this.loadRBAC(),
+      clients: this.loadClients(),
     };
   }
 

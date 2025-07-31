@@ -2,17 +2,17 @@ import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { INotificationModuleService } from "@medusajs/types";
 import { Modules } from "@medusajs/utils";
 import { BACKEND_URL } from "../lib/constants";
-import { INVITATION_MODULE, InvitationModuleService } from "../modules";
 import { EmailTemplates } from "../modules/email-notifications/templates";
 
 export default async function userInviteHandler({ event: { data }, container }: SubscriberArgs<any>) {
   const notificationModuleService: INotificationModuleService = container.resolve(Modules.NOTIFICATION);
-  const invitationModuleService: InvitationModuleService = container.resolve(INVITATION_MODULE);
-  const [invite] = await invitationModuleService.listInvitations({ where: { id: data.id } });
+
+  // Use the data directly from the event instead of querying the database
+  const { id, email, token } = data;
 
   try {
     await notificationModuleService.createNotifications({
-      to: invite.email,
+      to: email,
       channel: "email",
       template: EmailTemplates.INVITE_USER,
       data: {
@@ -20,12 +20,13 @@ export default async function userInviteHandler({ event: { data }, container }: 
           replyTo: "info@example.com",
           subject: "You've been invited to Medusa!",
         },
-        inviteLink: `${BACKEND_URL}/app/invite?token=${invite.token}`,
+        inviteLink: `${BACKEND_URL}/custom/public/invite?token=${token}`,
         preview: "The administration dashboard awaits...",
       },
     });
+    console.log("Email notification sent for invitation:", id);
   } catch (error) {
-    console.error(error);
+    console.error("Error sending email notification:", error);
   }
 }
 

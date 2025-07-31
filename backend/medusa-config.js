@@ -195,6 +195,9 @@ const medusaConfig = {
     {
       key: INVITATION_MODULE,
       resolve: "./src/modules/invitation",
+      definition: {
+        isQueryable: true,
+      },
     },
   ],
   plugins: [

@@ -22,6 +22,11 @@ export const BACKEND_URL =
   process.env.BACKEND_PUBLIC_URL ?? process.env.RAILWAY_PUBLIC_DOMAIN_VALUE ?? "http://localhost:9000";
 
 /**
+ * Public URL for the frontend/store
+ */
+export const FRONTEND_URL = process.env.FRONTEND_PUBLIC_URL ?? process.env.STORE_CORS ?? "http://localhost:3000";
+
+/**
  * Database URL for Postgres instance used by the backend
  */
 export const DATABASE_URL = assertValue(process.env.DATABASE_URL, "Environment variable for DATABASE_URL is not set");
