@@ -28,7 +28,7 @@ This document outlines the implementation of a comprehensive **multi-tenant** co
 - Recipe import from external sources
 - Role-based feature access control
 - Client invitation and user management system
-- Enhanced DataTable UI (leveraging existing patterns)
+- DataTable UI (leveraging existing patterns)
 
 ---
 
@@ -235,7 +235,7 @@ Please follow the existing code patterns in the restaurant and delivery modules,
 - [ ] Restaurant assignment interface for client recipes
 - [ ] **User Testing**: Client admins see only their data and available actions
 
-### Task 3.4: Enhanced Data Hooks with Tenancy
+### Task 3.4: Data Hooks with Tenancy
 
 - [ ] Create tenant-aware hooks `useCocktails()`, `useIngredients()`
 - [ ] Implement role-based feature visibility hooks
@@ -257,7 +257,7 @@ Please follow the existing code patterns in the restaurant and delivery modules,
 
 **Goal**: Implement complex ingredient relationships, recipe creation, and ownership controls
 
-### Task 4.1: Enhanced Multi-Tenant Ingredient System
+### Task 4.1: Multi-Tenant Ingredient System
 
 - [ ] Platform vs client ingredient ownership
 - [ ] Ingredient sharing controls (platform ingredients visible to all)
@@ -473,7 +473,7 @@ permissions (id, name, slug, resource, action, description)
 role_permissions (role_id, permission_id)
 user_roles (id, user_id, role_id, client_id, assigned_by, created_at)
 
--- Enhanced Recipe System
+-- Recipe System
 cocktails (id, name, description, instructions, abv, calories, is_alcohol_free, sweetness_level, strength_level, owner_type, owner_id, is_public, created_at, updated_at)
 ingredients (id, name, category_id, description, abv, cost_per_unit, owner_type, owner_id, is_shared, created_at, updated_at)
 
