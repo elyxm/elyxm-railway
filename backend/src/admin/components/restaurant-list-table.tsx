@@ -10,6 +10,7 @@ import {
   useDataTable,
 } from "@medusajs/ui";
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { RestaurantDTO } from "../../modules";
 import { useRestaurants } from "../hooks";
 import { StoreIcon } from "./icons";
@@ -25,6 +26,7 @@ interface RestaurantListTableProps {
 }
 
 export const RestaurantListTable = ({ searchQuery, statusFilter }: RestaurantListTableProps) => {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: PAGE_SIZE,
     pageIndex: 0,
@@ -52,7 +54,11 @@ export const RestaurantListTable = ({ searchQuery, statusFilter }: RestaurantLis
             <Text
               weight="plus"
               size="small"
-              onClick={() => (window.location.href = `/app/restaurants/${row.original.id}`)}
+              className="cursor-pointer hover:text-ui-fg-base transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/restaurants/${row.original.id}`);
+              }}
             >
               {getValue()}
             </Text>
@@ -96,7 +102,7 @@ export const RestaurantListTable = ({ searchQuery, statusFilter }: RestaurantLis
         ),
       }),
     ],
-    [refetch]
+    [refetch, navigate]
   );
 
   // Filter and paginate data
@@ -142,8 +148,8 @@ export const RestaurantListTable = ({ searchQuery, statusFilter }: RestaurantLis
         return;
       }
 
-      // Navigate to restaurant details page when row is clicked
-      window.location.href = `/app/restaurants/${row.id}`;
+      // Navigate to restaurant details page using React Router
+      navigate(`/restaurants/${row.id}`);
     },
   });
 

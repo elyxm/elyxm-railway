@@ -1,5 +1,6 @@
 import { EllipsisHorizontal, PencilSquare, Trash } from "@medusajs/icons";
 import { DropdownMenu, IconButton, toast } from "@medusajs/ui";
+import { useNavigate } from "react-router-dom";
 import { RestaurantDTO } from "../../modules";
 import { useDeleteRestaurant, useUpdateRestaurantStatus } from "../hooks";
 
@@ -9,6 +10,7 @@ interface RestaurantActionsMenuProps {
 }
 
 const RestaurantActionsMenu = ({ restaurant, onUpdate }: RestaurantActionsMenuProps) => {
+  const navigate = useNavigate();
   const { deleteRestaurant, loading: deleting } = useDeleteRestaurant();
   const { updateStatus, loading: updatingStatus } = useUpdateRestaurantStatus();
 
@@ -38,7 +40,7 @@ const RestaurantActionsMenu = ({ restaurant, onUpdate }: RestaurantActionsMenuPr
   };
 
   const handleEdit = () => {
-    window.location.href = `/app/restaurants/${restaurant.id}/edit`;
+    navigate(`/restaurants/${restaurant.id}/edit`);
   };
 
   return (

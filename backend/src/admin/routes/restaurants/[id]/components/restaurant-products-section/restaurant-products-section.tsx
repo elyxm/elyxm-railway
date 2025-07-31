@@ -1,5 +1,6 @@
 import { Container, Heading, Input, StatusBadge, Text } from "@medusajs/ui";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type RestaurantProductsSectionProps = {
   restaurant: any; // TODO: Replace with proper type
@@ -8,6 +9,7 @@ type RestaurantProductsSectionProps = {
 const PAGE_SIZE = 10;
 
 export const RestaurantProductsSection = ({ restaurant }: RestaurantProductsSectionProps) => {
+  const navigate = useNavigate();
   const products = restaurant.products || [];
   const [search, setSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,8 +101,8 @@ export const RestaurantProductsSection = ({ restaurant }: RestaurantProductsSect
   };
 
   const handleProductClick = (productId: string) => {
-    // Navigate in current page instead of opening new tab
-    window.location.href = `/app/products/${productId}`;
+    // Navigate using React Router for smooth client-side navigation
+    navigate(`/products/${productId}`);
   };
 
   return (
@@ -194,7 +196,7 @@ export const RestaurantProductsSection = ({ restaurant }: RestaurantProductsSect
                     className="border-b transition-colors hover:bg-ui-bg-subtle-hover cursor-pointer"
                     onClick={() => handleProductClick(product.id)}
                   >
-                    <td className="p-4 align-middle">
+                    <td className="px-6 py-4 align-middle">
                       <div className="space-y-1">
                         <Text size="small" weight="plus" className="leading-none text-ui-fg-subtle">
                           {product.title}
@@ -207,17 +209,17 @@ export const RestaurantProductsSection = ({ restaurant }: RestaurantProductsSect
                         )}
                       </div>
                     </td>
-                    <td className="p-4 align-middle">
+                    <td className="px-6 py-4 align-middle">
                       <Text size="small" className="txt-compact-small text-ui-fg-subtle">
                         {product.handle}
                       </Text>
                     </td>
-                    <td className="p-4 align-middle">
+                    <td className="px-6 py-4 align-middle">
                       <StatusBadge color={getStatusBadgeColor(product.status)}>
                         {getStatusText(product.status)}
                       </StatusBadge>
                     </td>
-                    <td className="p-4 align-middle">
+                    <td className="px-6 py-4 align-middle">
                       <Text size="small" className="txt-compact-small text-ui-fg-subtle">
                         {new Date(product.created_at).toLocaleDateString()}
                       </Text>
