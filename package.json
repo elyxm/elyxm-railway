@@ -22,7 +22,9 @@
     "redis:flush:all": "docker exec -it elyxm-redis redis-cli FLUSHALL",
     "postgres:cli": "dotenv -e backend/.env -- sh -c 'docker exec -it elyxm-postgres psql -U $POSTGRES_USER -d $POSTGRES_DB'",
     "postgres:cli-host": "dotenv -e backend/.env -- sh -c 'psql -h localhost -p ${POSTGRES_PORT:-5433} -U $POSTGRES_USER -d $POSTGRES_DB'",
-    "postgres:reset": "pnpm docker:down && docker volume rm elyxm-railway_elyxm_postgres_data && pnpm docker:up",
+    "postgres:wait": "dotenv -e backend/.env -- sh -c 'export PGPASSWORD=$POSTGRES_PASSWORD; for i in {1..30}; do if psql -h localhost -p ${POSTGRES_PORT:-5433} -U $POSTGRES_USER -d $POSTGRES_DB -c \"SELECT 1\" >/dev/null 2>&1; then echo \"Postgres is ready!\"; exit 0; fi; echo \"Waiting for postgres ($i/30)...\"; sleep 2; done; echo \"Timeout waiting for postgres\"; exit 1'",
+    "postgres:reset": "pnpm docker:down && sleep 2 && docker volume rm elyxm-railway_elyxm_postgres_data && sleep 1 && pnpm docker:up",
+    "postgres:reset-simple": "pnpm docker:down && sleep 2 && docker volume rm elyxm-railway_elyxm_postgres_data && sleep 1 && dotenv -e backend/.env -- docker-compose up -d postgres redis && sleep 5",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -15,14 +15,8 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { CreateInventoryLevelInput, ExecArgs } from "@medusajs/types";
 import { ContainerRegistrationKeys, Modules, ProductStatus } from "@medusajs/utils";
-
-// Configuration
-const SEED_CONFIG = {
-  // Default currency
-  DEFAULT_CURRENCY: "eur",
-  // Supported countries
-  COUNTRIES: ["gb", "de", "dk", "se", "fr", "es", "it", "us"],
-};
+import { createSeedDataLoader } from "./seed-data/loader";
+import { ProductData, SeedDataSet } from "./seed-data/types";
 
 interface SeedContext {
   container: any;
@@ -44,6 +38,17 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const link = container.resolve(ContainerRegistrationKeys.LINK);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
+  // Load seed data from JSON files
+  const seedDataLoader = createSeedDataLoader();
+  const seedData = seedDataLoader.loadAll();
+
+  logger.info(`🌱 Starting seed process with scenario: '${seedDataLoader.getScenario()}'`);
+  logger.info(
+    `📝 Scenario source: SEED_SCENARIO=${process.env.SEED_SCENARIO || "not set"}, NODE_ENV=${
+      process.env.NODE_ENV || "not set"
+    }`
+  );
+
   const ctx: SeedContext = {
     container,
     logger,
@@ -60,19 +65,33 @@ export default async function seedDemoData({ container }: ExecArgs) {
   };
 
   try {
-    logger.info("🌱 Starting seed process...");
-
     // Step 1: Always reset products and categories to ensure idempotency
     await resetProductData(ctx);
 
     // Step 2: Seed core data
-    const coreData = await seedCoreData(ctx);
+    const coreData = await seedCoreData(ctx, seedData);
 
-    // Step 3: Seed demo products
-    await seedDemoProducts(ctx, coreData);
+    // Step 3: Seed products from JSON data
+    await seedProducts(ctx, coreData, seedData);
 
-    // Step 4: Seed restaurant-specific data
-    await seedRestaurantData(ctx, coreData);
+    // Final verification - show all API keys
+    logger.info("🔍 Final API key verification:");
+    try {
+      const finalApiKeys = await ctx.apiKeyModuleService.listApiKeys();
+      if (finalApiKeys.length > 0) {
+        finalApiKeys.forEach((key: any) => {
+          logger.info(
+            `  ✓ "${key.title}" (ID: ${key.id}, Type: ${key.type}, Revoked: ${key.revoked_at ? "Yes" : "No"})`
+          );
+        });
+      } else {
+        logger.info("  (No API keys found)");
+      }
+    } catch (verifyError) {
+      logger.warn(
+        `  ⚠️ Could not verify API keys: ${verifyError instanceof Error ? verifyError.message : String(verifyError)}`
+      );
+    }
 
     logger.info("🎉 Seed process completed successfully!");
     logger.info("Admin login: admin@elyxm.local / password (if user exists)");
@@ -123,7 +142,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📦 No existing products found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete products:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete products: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing inventory items (HARD DELETE)
@@ -149,7 +168,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📦 No existing inventory items found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete inventory items:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete inventory items: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing inventory levels (HARD DELETE)
@@ -175,7 +194,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📊 No existing inventory levels found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete inventory levels:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete inventory levels: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing categories (HARD DELETE)
@@ -200,14 +219,108 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📁 No existing categories found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete categories:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete categories: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  // Delete all existing API keys (REVOKE first, then DELETE)
+  try {
+    const existingApiKeys = await ctx.apiKeyModuleService.listApiKeys();
+
+    logger.info(`🔑 Found ${existingApiKeys.length} existing API keys:`);
+    existingApiKeys.forEach((key: any) => {
+      logger.info(`  - "${key.title}" (ID: ${key.id}, Revoked: ${key.revoked_at ? "Yes" : "No"})`);
+    });
+
+    if (existingApiKeys.length > 0) {
+      // First, revoke all non-revoked API keys
+      const nonRevokedKeys = existingApiKeys.filter((key: any) => !key.revoked_at);
+      if (nonRevokedKeys.length > 0) {
+        logger.info(`  🚫 Revoking ${nonRevokedKeys.length} non-revoked API keys...`);
+
+        for (const key of nonRevokedKeys) {
+          try {
+            await ctx.apiKeyModuleService.updateApiKeys({ id: key.id }, { title: key.title, revoked_at: new Date() });
+            logger.info(`    ✓ Revoked: ${key.title}`);
+          } catch (revokeError) {
+            logger.warn(
+              `    ✗ Failed to revoke ${key.title}: ${
+                revokeError instanceof Error ? revokeError.message : String(revokeError)
+              }`
+            );
+            console.error("Full revoke error:", revokeError);
+          }
+        }
+
+        // Wait longer for revocation to be processed and verify
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+
+      // Verify revocation actually worked by reloading API keys
+      logger.info("  🔍 Verifying revocation status...");
+      const reloadedKeys = await ctx.apiKeyModuleService.listApiKeys();
+      const stillNotRevoked = reloadedKeys.filter((key: any) => !key.revoked_at);
+
+      if (stillNotRevoked.length > 0) {
+        logger.warn(`  ⚠️ ${stillNotRevoked.length} API keys still not revoked after update:`);
+        stillNotRevoked.forEach((key: any) => {
+          logger.warn(`    - "${key.title}" (ID: ${key.id})`);
+        });
+      } else {
+        logger.info("  ✅ All API keys successfully revoked");
+      }
+
+      // Only attempt deletion if all keys are actually revoked
+      const revokedKeys = reloadedKeys.filter((key: any) => key.revoked_at);
+
+      if (revokedKeys.length === existingApiKeys.length) {
+        // All keys are revoked, safe to delete
+        logger.info(`  🗑️ Attempting to delete ${revokedKeys.length} revoked API keys...`);
+        const revokedKeyIds = revokedKeys.map((key: any) => key.id);
+
+        try {
+          await ctx.apiKeyModuleService.deleteApiKeys(revokedKeyIds);
+          logger.info("  ✅ API keys successfully deleted from database");
+        } catch (deleteError) {
+          logger.warn(
+            `  ⚠️ Failed to delete API keys: ${
+              deleteError instanceof Error ? deleteError.message : String(deleteError)
+            }`
+          );
+          logger.info("  ℹ️ Skipping API key deletion - existing keys won't interfere with new scenario");
+        }
+      } else {
+        logger.info("  ⏭️ Skipping API key deletion - revocation didn't complete properly");
+        logger.info("  ℹ️ Existing API keys won't interfere with the new scenario");
+      }
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Verify deletion
+      const remainingKeys = await ctx.apiKeyModuleService.listApiKeys();
+      if (remainingKeys.length > 0) {
+        logger.warn(`  ⚠️ ${remainingKeys.length} API keys still remain after deletion attempt:`);
+        remainingKeys.forEach((key: any) => {
+          logger.warn(`    - "${key.title}" (ID: ${key.id})`);
+        });
+      } else {
+        logger.info("  ✅ All API keys successfully removed");
+      }
+    } else {
+      logger.info("🔑 No existing API keys found");
+    }
+  } catch (error) {
+    logger.warn(
+      `  ⚠️ General error during API key deletion: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 
   logger.info("✅ Product data reset completed");
 }
 
-async function seedCoreData(ctx: SeedContext) {
+async function seedCoreData(ctx: SeedContext, seedData: SeedDataSet) {
   const { logger, container } = ctx;
+  const { config } = seedData;
 
   logger.info("📦 Seeding core store data...");
 
@@ -216,7 +329,7 @@ async function seedCoreData(ctx: SeedContext) {
 
   // 2. Create or get default sales channel
   let defaultSalesChannel = await ctx.salesChannelModuleService.listSalesChannels({
-    name: "Default Sales Channel",
+    name: config.salesChannel.name,
   });
 
   if (!defaultSalesChannel.length) {
@@ -224,8 +337,8 @@ async function seedCoreData(ctx: SeedContext) {
       input: {
         salesChannelsData: [
           {
-            name: "Default Sales Channel",
-            description: "Default sales channel for all products",
+            name: config.salesChannel.name,
+            description: config.salesChannel.description,
           },
         ],
       },
@@ -238,15 +351,7 @@ async function seedCoreData(ctx: SeedContext) {
     input: {
       selector: { id: store.id },
       update: {
-        supported_currencies: [
-          {
-            currency_code: SEED_CONFIG.DEFAULT_CURRENCY,
-            is_default: true,
-          },
-          {
-            currency_code: "usd",
-          },
-        ],
+        supported_currencies: config.supportedCurrencies,
         default_sales_channel_id: defaultSalesChannel[0].id,
       },
     },
@@ -256,7 +361,7 @@ async function seedCoreData(ctx: SeedContext) {
   let region;
   try {
     const existingRegions = await ctx.regionModuleService.listRegions({
-      name: "Europe",
+      name: config.region.name,
     });
 
     if (!existingRegions.length) {
@@ -264,10 +369,10 @@ async function seedCoreData(ctx: SeedContext) {
         input: {
           regions: [
             {
-              name: "Europe",
-              currency_code: SEED_CONFIG.DEFAULT_CURRENCY,
-              countries: SEED_CONFIG.COUNTRIES,
-              payment_providers: ["pp_system_default"],
+              name: config.region.name,
+              currency_code: config.region.currency_code,
+              countries: config.countries,
+              payment_providers: config.region.payment_providers,
             },
           ],
         },
@@ -293,7 +398,7 @@ async function seedCoreData(ctx: SeedContext) {
   // 5. Create tax regions (check if they exist first)
   try {
     await createTaxRegionsWorkflow(container).run({
-      input: SEED_CONFIG.COUNTRIES.map((country_code) => ({
+      input: config.countries.map((country_code: string) => ({
         country_code,
         provider_id: "tp_system",
       })),
@@ -307,7 +412,7 @@ async function seedCoreData(ctx: SeedContext) {
   let stockLocation;
   try {
     const existingLocations = await ctx.stockLocationModuleService.listStockLocations({
-      name: "Main Warehouse",
+      name: config.stockLocation.name,
     });
 
     if (!existingLocations.length) {
@@ -315,12 +420,8 @@ async function seedCoreData(ctx: SeedContext) {
         input: {
           locations: [
             {
-              name: "Main Warehouse",
-              address: {
-                city: "Copenhagen",
-                country_code: "DK",
-                address_1: "123 Storage Street",
-              },
+              name: config.stockLocation.name,
+              address: config.stockLocation.address,
             },
           ],
         },
@@ -344,29 +445,42 @@ async function seedCoreData(ctx: SeedContext) {
   }
 
   // 7. Setup fulfillment
-  await setupFulfillment(ctx, container, stockLocation, region);
+  await setupFulfillment(ctx, container, stockLocation, region, seedData);
 
   // 8. Create publishable API key
+  logger.info(`🔑 Creating API key: "${config.apiKey.title}"`);
+
   const existingApiKeys = await ctx.apiKeyModuleService.listApiKeys({
-    title: "Webshop",
+    title: config.apiKey.title,
   });
 
   let publishableApiKey;
   if (!existingApiKeys.length) {
-    const { result: publishableApiKeyResult } = await createApiKeysWorkflow(container).run({
-      input: {
-        api_keys: [
-          {
-            title: "Webshop",
-            type: "publishable",
-            created_by: "",
-          },
-        ],
-      },
-    });
-    publishableApiKey = publishableApiKeyResult[0];
+    logger.info(`  📝 Creating new API key: "${config.apiKey.title}"`);
+    try {
+      const { result: publishableApiKeyResult } = await createApiKeysWorkflow(container).run({
+        input: {
+          api_keys: [
+            {
+              title: config.apiKey.title,
+              type: config.apiKey.type as any,
+              created_by: "",
+            },
+          ],
+        },
+      });
+      publishableApiKey = publishableApiKeyResult[0];
+      logger.info(`  ✅ API key created: "${publishableApiKey.title}" (ID: ${publishableApiKey.id})`);
+    } catch (apiKeyError) {
+      logger.error(
+        "  ❌ Failed to create API key:",
+        apiKeyError instanceof Error ? apiKeyError.message : String(apiKeyError)
+      );
+      throw apiKeyError;
+    }
   } else {
     publishableApiKey = existingApiKeys[0];
+    logger.info(`  ♻️ Using existing API key: "${publishableApiKey.title}" (ID: ${publishableApiKey.id})`);
   }
 
   // 9. Link sales channel to API key (idempotent)
@@ -406,8 +520,15 @@ async function seedCoreData(ctx: SeedContext) {
   };
 }
 
-async function setupFulfillment(ctx: SeedContext, container: any, stockLocation: any, region: any) {
+async function setupFulfillment(
+  ctx: SeedContext,
+  container: any,
+  stockLocation: any,
+  region: any,
+  seedData: SeedDataSet
+) {
   const { logger, link } = ctx;
+  const { shipping, config } = seedData;
 
   logger.info("🚚 Setting up fulfillment...");
 
@@ -428,7 +549,7 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
 
   // Get or create shipping profile
   const shippingProfiles = await ctx.fulfillmentModuleService.listShippingProfiles({
-    type: "default",
+    type: shipping.shippingProfile.type,
   });
 
   let shippingProfile = shippingProfiles.length ? shippingProfiles[0] : null;
@@ -438,8 +559,8 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
       input: {
         data: [
           {
-            name: "Default Shipping Profile",
-            type: "default",
+            name: shipping.shippingProfile.name,
+            type: shipping.shippingProfile.type,
           },
         ],
       },
@@ -451,12 +572,12 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
   let fulfillmentSet;
   try {
     fulfillmentSet = await ctx.fulfillmentModuleService.createFulfillmentSets({
-      name: "Main Warehouse Delivery",
-      type: "shipping",
+      name: shipping.fulfillmentSet.name,
+      type: shipping.fulfillmentSet.type,
       service_zones: [
         {
-          name: "Europe",
-          geo_zones: SEED_CONFIG.COUNTRIES.map((country_code) => ({
+          name: config.region.name,
+          geo_zones: config.countries.map((country_code: string) => ({
             country_code,
             type: "country",
           })),
@@ -467,7 +588,7 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
   } catch (fulfillmentError) {
     // If fulfillment set exists, fetch it
     const existingSets = await ctx.fulfillmentModuleService.listFulfillmentSets({
-      name: "Main Warehouse Delivery",
+      name: shipping.fulfillmentSet.name,
     });
     if (existingSets && existingSets.length > 0) {
       fulfillmentSet = existingSets[0];
@@ -499,87 +620,24 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
     logger.info("ℹ️ Stock location already linked to fulfillment set");
   }
 
-  // Create shipping options (idempotent)
+  // Create shipping options from JSON data (idempotent)
   try {
+    const shippingOptionsInput = shipping.shippingOptions.map((option) => ({
+      ...option,
+      service_zone_id: fulfillmentSet.service_zones[0].id,
+      shipping_profile_id: shippingProfile.id,
+      prices: option.prices.map((price) => ({
+        ...price,
+        region_id: price.region_id || region.id,
+      })),
+      rules: option.rules.map((rule) => ({
+        ...rule,
+        operator: rule.operator as any,
+      })),
+    }));
+
     await createShippingOptionsWorkflow(container).run({
-      input: [
-        {
-          name: "Standard Shipping",
-          price_type: "flat",
-          provider_id: "manual_manual",
-          service_zone_id: fulfillmentSet.service_zones[0].id,
-          shipping_profile_id: shippingProfile.id,
-          type: {
-            label: "Standard",
-            description: "Ship in 2-3 days.",
-            code: "standard",
-          },
-          prices: [
-            {
-              currency_code: "usd",
-              amount: 10,
-            },
-            {
-              currency_code: "eur",
-              amount: 10,
-            },
-            {
-              region_id: region.id,
-              amount: 10,
-            },
-          ],
-          rules: [
-            {
-              attribute: "enabled_in_store",
-              value: "true",
-              operator: "eq",
-            },
-            {
-              attribute: "is_return",
-              value: "false",
-              operator: "eq",
-            },
-          ],
-        },
-        {
-          name: "Express Shipping",
-          price_type: "flat",
-          provider_id: "manual_manual",
-          service_zone_id: fulfillmentSet.service_zones[0].id,
-          shipping_profile_id: shippingProfile.id,
-          type: {
-            label: "Express",
-            description: "Ship in 24 hours.",
-            code: "express",
-          },
-          prices: [
-            {
-              currency_code: "usd",
-              amount: 25,
-            },
-            {
-              currency_code: "eur",
-              amount: 20,
-            },
-            {
-              region_id: region.id,
-              amount: 20,
-            },
-          ],
-          rules: [
-            {
-              attribute: "enabled_in_store",
-              value: "true",
-              operator: "eq",
-            },
-            {
-              attribute: "is_return",
-              value: "false",
-              operator: "eq",
-            },
-          ],
-        },
-      ],
+      input: shippingOptionsInput as any,
     });
     logger.info("✅ Shipping options created");
   } catch (shippingError) {
@@ -589,48 +647,34 @@ async function setupFulfillment(ctx: SeedContext, container: any, stockLocation:
   return shippingProfile;
 }
 
-async function seedDemoProducts(ctx: SeedContext, coreData: any) {
+async function seedProducts(ctx: SeedContext, coreData: any, seedData: SeedDataSet) {
   const { logger, container, query } = ctx;
+  const { categories, products } = seedData;
 
-  logger.info("🛍️ Seeding demo products...");
+  logger.info("🛍️ Seeding products from JSON data...");
 
-  // Create product categories (idempotent)
+  // Create product categories from JSON data (idempotent)
   let categoryResult;
   try {
     const { result } = await createProductCategoriesWorkflow(container).run({
       input: {
-        product_categories: [
-          {
-            name: "Clothing",
-            description: "Apparel and clothing items",
-            is_active: true,
-          },
-          {
-            name: "Electronics",
-            description: "Electronic devices and gadgets",
-            is_active: true,
-          },
-          {
-            name: "Home & Garden",
-            description: "Home and garden products",
-            is_active: true,
-          },
-        ],
+        product_categories: categories,
       },
     });
     categoryResult = result;
-    logger.info("✅ Demo categories created");
+    logger.info("✅ Categories created from JSON data");
   } catch (categoryError) {
     // If categories exist, fetch them
+    const categoryNames = categories.map((cat) => cat.name);
     const { data: existingCategories } = await query.graph({
       entity: "product_category",
       fields: ["id", "name"],
       filters: {
-        name: ["Clothing", "Electronics", "Home & Garden"],
+        name: categoryNames,
       },
     });
     categoryResult = existingCategories;
-    logger.info("ℹ️ Demo categories already exist (using existing)");
+    logger.info("ℹ️ Categories already exist (using existing)");
   }
 
   // Get shipping profile
@@ -639,110 +683,50 @@ async function seedDemoProducts(ctx: SeedContext, coreData: any) {
   });
   const shippingProfile = shippingProfiles[0];
 
-  // Create demo products - fresh every time since we reset above
-  logger.info("🔄 Creating fresh demo products...");
+  // Create products from JSON data
+  logger.info("🔄 Creating products from JSON data...");
 
   try {
-    const { result: demoProducts } = await createProductsWorkflow(container).run({
+    const productsInput = products.map((product: ProductData) => {
+      const category = categoryResult.find((cat: any) => cat.name === product.category_name);
+      if (!category) {
+        throw new Error(`Category '${product.category_name}' not found for product '${product.title}'`);
+      }
+
+      return {
+        title: product.title,
+        category_ids: [category.id],
+        description: product.description,
+        handle: product.handle,
+        weight: product.weight,
+        status: product.status === "published" ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
+        shipping_profile_id: shippingProfile.id,
+        images: product.images || [],
+        options: product.options,
+        variants: product.variants,
+        sales_channels: [{ id: coreData.defaultSalesChannel.id }],
+      };
+    });
+
+    const { result: createdProducts } = await createProductsWorkflow(container).run({
       input: {
-        products: [
-          {
-            title: "Classic T-Shirt",
-            category_ids: [categoryResult.find((cat: any) => cat.name === "Clothing")!.id],
-            description: "A comfortable and stylish classic t-shirt made from premium cotton.",
-            handle: "classic-t-shirt",
-            weight: 200,
-            status: ProductStatus.PUBLISHED,
-            shipping_profile_id: shippingProfile.id,
-            images: [
-              {
-                url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png",
-              },
-            ],
-            options: [
-              {
-                title: "Size",
-                values: ["S", "M", "L", "XL"],
-              },
-              {
-                title: "Color",
-                values: ["Black", "White", "Gray"],
-              },
-            ],
-            variants: [
-              {
-                title: "S / Black",
-                sku: "TSHIRT-S-BLACK",
-                options: { Size: "S", Color: "Black" },
-                prices: [
-                  { amount: 1999, currency_code: "eur" },
-                  { amount: 2199, currency_code: "usd" },
-                ],
-              },
-              {
-                title: "M / Black",
-                sku: "TSHIRT-M-BLACK",
-                options: { Size: "M", Color: "Black" },
-                prices: [
-                  { amount: 1999, currency_code: "eur" },
-                  { amount: 2199, currency_code: "usd" },
-                ],
-              },
-              {
-                title: "L / Black",
-                sku: "TSHIRT-L-BLACK",
-                options: { Size: "L", Color: "Black" },
-                prices: [
-                  { amount: 1999, currency_code: "eur" },
-                  { amount: 2199, currency_code: "usd" },
-                ],
-              },
-            ],
-            sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-          },
-          {
-            title: "Wireless Headphones",
-            category_ids: [categoryResult.find((cat: any) => cat.name === "Electronics")!.id],
-            description: "High-quality wireless headphones with noise cancellation.",
-            handle: "wireless-headphones",
-            weight: 300,
-            status: ProductStatus.PUBLISHED,
-            shipping_profile_id: shippingProfile.id,
-            options: [
-              {
-                title: "Style",
-                values: ["Standard"],
-              },
-            ],
-            variants: [
-              {
-                title: "Standard",
-                sku: "HEADPHONES-WL-001",
-                options: { Style: "Standard" },
-                prices: [
-                  { amount: 12999, currency_code: "eur" },
-                  { amount: 14999, currency_code: "usd" },
-                ],
-              },
-            ],
-            sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-          },
-        ],
+        products: productsInput,
       },
     });
 
-    logger.info("✅ Demo products created");
+    logger.info(`✅ ${createdProducts.length} products created from JSON data`);
   } catch (productError) {
-    logger.warn("❌ Failed to create demo products");
+    logger.warn("❌ Failed to create products from JSON data");
     logger.warn(String(productError));
 
     // Check if products with these handles still exist
     try {
+      const handles = products.map((p) => p.handle);
       const { data: conflictingProducts } = await query.graph({
         entity: "product",
         fields: ["id", "title", "handle"],
         filters: {
-          handle: ["classic-t-shirt", "wireless-headphones"],
+          handle: handles,
         },
       });
 
@@ -761,170 +745,10 @@ async function seedDemoProducts(ctx: SeedContext, coreData: any) {
     throw productError;
   }
 
-  logger.info("✅ Demo products seeding completed");
-}
-
-async function seedRestaurantData(ctx: SeedContext, coreData: any) {
-  const { logger, container, query } = ctx;
-
-  logger.info("🍽️ Seeding restaurant-specific data...");
-
-  // Create restaurant-specific product categories (idempotent)
-  let restaurantCategories;
-  try {
-    const { result } = await createProductCategoriesWorkflow(container).run({
-      input: {
-        product_categories: [
-          {
-            name: "Appetizers",
-            description: "Starters and small plates",
-            is_active: true,
-          },
-          {
-            name: "Main Courses",
-            description: "Primary dishes and entrees",
-            is_active: true,
-          },
-          {
-            name: "Desserts",
-            description: "Sweet treats and desserts",
-            is_active: true,
-          },
-          {
-            name: "Beverages",
-            description: "Drinks and beverages",
-            is_active: true,
-          },
-          {
-            name: "Cocktails",
-            description: "Alcoholic cocktails and mixed drinks",
-            is_active: true,
-          },
-        ],
-      },
-    });
-    restaurantCategories = result;
-    logger.info("✅ Restaurant categories created");
-  } catch (categoryError) {
-    // If categories exist, fetch them
-    const { data: existingCategories } = await query.graph({
-      entity: "product_category",
-      fields: ["id", "name"],
-      filters: {
-        name: ["Appetizers", "Main Courses", "Desserts", "Beverages", "Cocktails"],
-      },
-    });
-    if (existingCategories && existingCategories.length > 0) {
-      restaurantCategories = existingCategories;
-      logger.info("ℹ️ Restaurant categories already exist (using existing)");
-    } else {
-      throw new Error("Restaurant categories not found and unable to create new ones");
-    }
-  }
-
-  // Get shipping profile
-  const shippingProfiles = await ctx.fulfillmentModuleService.listShippingProfiles({
-    type: "default",
-  });
-  const shippingProfile = shippingProfiles[0];
-
-  // Create restaurant products - fresh every time since we reset above
-  logger.info("🔄 Creating fresh restaurant products...");
-
-  const { result: restaurantProducts } = await createProductsWorkflow(container).run({
-    input: {
-      products: [
-        {
-          title: "Caesar Salad",
-          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Appetizers")!.id],
-          description: "Fresh romaine lettuce with caesar dressing, parmesan, and croutons",
-          handle: "caesar-salad",
-          weight: 250,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [
-            {
-              title: "Size",
-              values: ["Regular"],
-            },
-          ],
-          variants: [
-            {
-              title: "Regular",
-              sku: "APPETIZER-CAESAR-REG",
-              options: { Size: "Regular" },
-              prices: [
-                { amount: 1200, currency_code: "eur" },
-                { amount: 1400, currency_code: "usd" },
-              ],
-            },
-          ],
-          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-        },
-        {
-          title: "Grilled Salmon",
-          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Main Courses")!.id],
-          description: "Fresh Atlantic salmon with seasonal vegetables",
-          handle: "grilled-salmon",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [
-            {
-              title: "Size",
-              values: ["Regular"],
-            },
-          ],
-          variants: [
-            {
-              title: "Regular",
-              sku: "MAIN-SALMON-REG",
-              options: { Size: "Regular" },
-              prices: [
-                { amount: 2800, currency_code: "eur" },
-                { amount: 3200, currency_code: "usd" },
-              ],
-            },
-          ],
-          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-        },
-        {
-          title: "Classic Mojito",
-          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Cocktails")!.id],
-          description: "White rum, lime juice, sugar, soda water, and fresh mint",
-          handle: "classic-mojito",
-          weight: 300,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [
-            {
-              title: "Size",
-              values: ["Regular"],
-            },
-          ],
-          variants: [
-            {
-              title: "Regular",
-              sku: "COCKTAIL-MOJITO-REG",
-              options: { Size: "Regular" },
-              prices: [
-                { amount: 1200, currency_code: "eur" },
-                { amount: 1400, currency_code: "usd" },
-              ],
-            },
-          ],
-          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-        },
-      ],
-    },
-  });
-
-  logger.info("✅ Restaurant products created");
-
   // Set up inventory levels for all products
   await setupInventory(ctx, coreData.stockLocation);
 
-  logger.info("✅ Restaurant data seeding completed");
+  logger.info("✅ Products seeding completed");
 }
 
 async function setupInventory(ctx: SeedContext, stockLocation: any) {

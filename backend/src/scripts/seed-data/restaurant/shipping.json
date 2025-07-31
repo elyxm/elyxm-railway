@@ -1,0 +1,108 @@
+{
+  "fulfillmentSet": {
+    "name": "Restaurant Delivery",
+    "type": "shipping"
+  },
+  "shippingProfile": {
+    "name": "Food Delivery Profile",
+    "type": "default"
+  },
+  "shippingOptions": [
+    {
+      "name": "Standard Delivery",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Standard",
+        "description": "Delivery in 30-45 minutes.",
+        "code": "standard"
+      },
+      "prices": [
+        {
+          "currency_code": "usd",
+          "amount": 5
+        },
+        {
+          "currency_code": "eur",
+          "amount": 5
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    },
+    {
+      "name": "Express Delivery",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Express",
+        "description": "Priority delivery in 15-20 minutes.",
+        "code": "express"
+      },
+      "prices": [
+        {
+          "currency_code": "usd",
+          "amount": 8
+        },
+        {
+          "currency_code": "eur",
+          "amount": 8
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    },
+    {
+      "name": "Pickup",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Pickup",
+        "description": "Ready for pickup in 15 minutes.",
+        "code": "pickup"
+      },
+      "prices": [
+        {
+          "currency_code": "usd",
+          "amount": 0
+        },
+        {
+          "currency_code": "eur",
+          "amount": 0
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    }
+  ]
+}

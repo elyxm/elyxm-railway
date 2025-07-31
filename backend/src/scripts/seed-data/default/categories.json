@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Clothing",
+    "description": "Apparel and clothing items",
+    "is_active": true
+  },
+  {
+    "name": "Electronics",
+    "description": "Electronic devices and gadgets",
+    "is_active": true
+  },
+  {
+    "name": "Home & Garden",
+    "description": "Home and garden products",
+    "is_active": true
+  }
+]

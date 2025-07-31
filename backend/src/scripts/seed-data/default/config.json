@@ -1,0 +1,34 @@
+{
+  "defaultCurrency": "eur",
+  "supportedCurrencies": [
+    {
+      "currency_code": "eur",
+      "is_default": true
+    },
+    {
+      "currency_code": "usd"
+    }
+  ],
+  "countries": ["gb", "de", "dk", "se", "fr", "es", "it", "us"],
+  "region": {
+    "name": "Europe",
+    "currency_code": "eur",
+    "payment_providers": ["pp_system_default"]
+  },
+  "stockLocation": {
+    "name": "Main Warehouse",
+    "address": {
+      "city": "Copenhagen",
+      "country_code": "DK",
+      "address_1": "123 Storage Street"
+    }
+  },
+  "salesChannel": {
+    "name": "Default Sales Channel",
+    "description": "Default sales channel for all products"
+  },
+  "apiKey": {
+    "title": "Webshop",
+    "type": "publishable"
+  }
+}

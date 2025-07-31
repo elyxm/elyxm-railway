@@ -23,7 +23,10 @@ import {
   STRIPE_WEBHOOK_SECRET,
   WORKER_MODE,
 } from "./src/lib/constants";
+import { CLIENT_MODULE } from "./src/modules/client";
+import { COCKTAIL_MODULE } from "./src/modules/cocktail";
 import { DELIVERY_MODULE } from "./src/modules/delivery";
+import { RBAC_MODULE } from "./src/modules/rbac";
 import { RESTAURANT_MODULE } from "./src/modules/restaurant";
 
 loadEnv(process.env.NODE_ENV, process.cwd());
@@ -176,6 +179,18 @@ const medusaConfig = {
       key: DELIVERY_MODULE,
       resolve: "./src/modules/delivery",
     },
+    {
+      key: CLIENT_MODULE,
+      resolve: "./src/modules/client",
+    },
+    {
+      key: RBAC_MODULE,
+      resolve: "./src/modules/rbac",
+    },
+    {
+      key: COCKTAIL_MODULE,
+      resolve: "./src/modules/cocktail",
+    },
   ],
   plugins: [
     ...(process.env.NODE_ENV === "production" && MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY
@@ -207,5 +222,7 @@ const medusaConfig = {
   ],
 };
 
-console.log(JSON.stringify(medusaConfig, null, 2));
+if (process.env.NODE_ENV === "development" && process.env.DEBUG === "true") {
+  console.log(JSON.stringify(medusaConfig, null, 2));
+}
 export default defineConfig(medusaConfig);

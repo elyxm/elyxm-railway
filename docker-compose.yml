@@ -3,6 +3,7 @@ services:
   redis:
     image: redis:latest
     container_name: elyxm-redis
+    command: redis-server --databases 30
     ports:
       - "6379:6379"
     volumes:
@@ -22,10 +23,11 @@ services:
       - elyxm_postgres_data:/var/lib/postgresql/data
       - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elyxm_user} -d ${POSTGRES_DB:-elyxm_development}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U elyxm_admin -d elyxm_development"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
   pgadmin:
