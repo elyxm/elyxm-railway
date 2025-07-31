@@ -147,31 +147,31 @@ Please follow the existing code patterns in the restaurant and delivery modules,
 - [x] Set up proper indexes for performance and tenant isolation
 - [x] **User Testing**: Verify schema creation and basic tenant queries
 
-### [ ] Task 1.2: Client & User Management Models
+### [x] Task 1.2: Client & User Management Models
 
-- [ ] Create `backend/src/modules/client/models/client.ts`
-- [ ] Create `backend/src/modules/client/models/client-restaurant.ts`
-- [ ] Create `backend/src/modules/rbac/models/role.ts`
-- [ ] Create `backend/src/modules/rbac/models/permission.ts`
-- [ ] Create `backend/src/modules/rbac/models/user-role.ts`
-- [ ] Define TypeScript types for multi-tenancy
-- [ ] **User Testing**: Create test clients, roles, and user assignments
+- [x] Create `backend/src/modules/client/models/client.ts`
+- [x] Create `backend/src/modules/client/models/client-restaurant.ts`
+- [x] Create `backend/src/modules/rbac/models/role.ts`
+- [x] Create `backend/src/modules/rbac/models/permission.ts`
+- [x] Create `backend/src/modules/rbac/models/user-role.ts`
+- [x] Define TypeScript types for multi-tenancy
+- [x] **User Testing**: Create test clients, roles, and user assignments
 
-### [ ] Task 1.3: Core Cocktail Models with Ownership
+### [x] Task 1.3: Core Cocktail Models with Ownership
 
-- [ ] Create `backend/src/modules/cocktail/models/cocktail.ts` with ownership fields
-- [ ] Create `backend/src/modules/cocktail/models/ingredient.ts` with client ownership
-- [ ] Create `backend/src/modules/cocktail/models/cocktail-ingredient.ts`
-- [ ] Create access control models for recipes and ingredients
-- [ ] **User Testing**: Create platform and client recipes with different ownership
+- [x] Create `backend/src/modules/cocktail/models/cocktail.ts` with ownership fields
+- [x] Create `backend/src/modules/cocktail/models/ingredient.ts` with client ownership
+- [x] Create `backend/src/modules/cocktail/models/cocktail-ingredient.ts`
+- [x] Create access control models for recipes and ingredients
+- [x] **User Testing**: Create platform and client recipes with different ownership
 
-### [ ] Task 1.4: Basic Multi-Tenant Services
+### [x] Task 1.4: Basic Multi-Tenant Services
 
-- [ ] Implement `backend/src/modules/client/service.ts`
-- [ ] Implement `backend/src/modules/rbac/service.ts`
-- [ ] Implement `backend/src/modules/cocktail/service.ts` with tenant-aware methods
-- [ ] Basic CRUD operations with access control
-- [ ] **User Testing**: Service methods respect tenant boundaries
+- [x] Implement `backend/src/modules/client/service.ts`
+- [x] Implement `backend/src/modules/rbac/service.ts`
+- [x] Implement `backend/src/modules/cocktail/service.ts` with tenant-aware methods
+- [x] Basic CRUD operations with access control
+- [x] **User Testing**: Service methods respect tenant boundaries
 
 **🧪 Phase 1 Testing Checkpoint**
 
