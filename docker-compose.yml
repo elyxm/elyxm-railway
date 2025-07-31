@@ -8,6 +8,47 @@ services:
     volumes:
       - elyxm_redis_data:/data
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: elyxm-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-elyxm_development}
+      POSTGRES_USER: ${POSTGRES_USER:-elyxm_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-elyxm_password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - elyxm_postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elyxm_user} -d ${POSTGRES_DB:-elyxm_development}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: elyxm-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@elyxm.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    volumes:
+      - elyxm_pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   elyxm_redis_data:
+    driver: local
+  elyxm_postgres_data:
+    driver: local
+  elyxm_pgadmin_data:
     driver: local
