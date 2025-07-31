@@ -18,10 +18,6 @@ import { ContainerRegistrationKeys, Modules, ProductStatus } from "@medusajs/uti
 
 // Configuration
 const SEED_CONFIG = {
-  // Set to true to delete existing data before seeding
-  RESET_DATA: process.env.SEED_RESET === "true",
-  // Set to true to skip demo products and only create essential data
-  SKIP_DEMO_PRODUCTS: process.env.SEED_SKIP_DEMO === "true",
   // Default currency
   DEFAULT_CURRENCY: "eur",
   // Supported countries
@@ -64,75 +60,150 @@ export default async function seedDemoData({ container }: ExecArgs) {
   };
 
   try {
-    logger.info("🌱 Starting enhanced seed process...");
-    logger.info(`Configuration: Reset=${SEED_CONFIG.RESET_DATA}, SkipDemo=${SEED_CONFIG.SKIP_DEMO_PRODUCTS}`);
+    logger.info("🌱 Starting seed process...");
 
-    // Step 1: Reset data if requested
-    if (SEED_CONFIG.RESET_DATA) {
-      await resetData(ctx);
-    }
+    // Step 1: Always reset products and categories to ensure idempotency
+    await resetProductData(ctx);
 
     // Step 2: Seed core data
     const coreData = await seedCoreData(ctx);
 
-    // Step 3: Seed demo products (optional)
-    if (!SEED_CONFIG.SKIP_DEMO_PRODUCTS) {
-      await seedDemoProducts(ctx, coreData);
-    }
+    // Step 3: Seed demo products
+    await seedDemoProducts(ctx, coreData);
 
     // Step 4: Seed restaurant-specific data
     await seedRestaurantData(ctx, coreData);
 
-    logger.info("🎉 Enhanced seed process completed successfully!");
+    logger.info("🎉 Seed process completed successfully!");
     logger.info("Admin login: admin@elyxm.local / password (if user exists)");
-    logger.info("Use SEED_RESET=true to clean data before seeding");
-    logger.info("Use SEED_SKIP_DEMO=true to skip demo products");
   } catch (error) {
     console.error("❌ Seed process failed:", error);
     throw error;
   }
 }
 
-async function resetData(ctx: SeedContext) {
-  const { logger, query } = ctx;
+async function resetProductData(ctx: SeedContext) {
+  const { logger, query, container } = ctx;
 
-  logger.info("🧹 Resetting existing data...");
+  logger.info("🧹 Resetting products and categories for idempotency...");
 
+  // Delete all existing products (HARD DELETE - completely wipe from DB)
   try {
-    // Delete in reverse dependency order
-    await query.connection.manager.query("DELETE FROM product_variant_inventory_item");
-    await query.connection.manager.query("DELETE FROM inventory_level");
-    await query.connection.manager.query("DELETE FROM inventory_item");
-    await query.connection.manager.query("DELETE FROM product_variant_price_set");
-    await query.connection.manager.query("DELETE FROM product_variant");
-    await query.connection.manager.query("DELETE FROM product_option_value");
-    await query.connection.manager.query("DELETE FROM product_option");
-    await query.connection.manager.query("DELETE FROM product_image");
-    await query.connection.manager.query("DELETE FROM product_sales_channel");
-    await query.connection.manager.query("DELETE FROM product");
-    await query.connection.manager.query("DELETE FROM product_category");
-    await query.connection.manager.query("DELETE FROM shipping_option_price_set");
-    await query.connection.manager.query("DELETE FROM shipping_option");
-    await query.connection.manager.query("DELETE FROM fulfillment_set_service_zone");
-    await query.connection.manager.query("DELETE FROM fulfillment_set");
-    await query.connection.manager.query("DELETE FROM publishable_api_key_sales_channel");
-    await query.connection.manager.query("DELETE FROM api_key");
-    await query.connection.manager.query("DELETE FROM sales_channel_stock_location");
-    await query.connection.manager.query("DELETE FROM location_fulfillment_provider");
-    await query.connection.manager.query("DELETE FROM location_fulfillment_set");
-    await query.connection.manager.query("DELETE FROM stock_location");
-    await query.connection.manager.query("DELETE FROM tax_region");
-    await query.connection.manager.query("DELETE FROM region_payment_provider");
-    await query.connection.manager.query("DELETE FROM region WHERE name != 'Default Region'");
-    await query.connection.manager.query("DELETE FROM sales_channel WHERE name != 'Default Sales Channel'");
+    const { data: existingProducts } = await query.graph({
+      entity: "product",
+      fields: ["id", "title", "handle"],
+      // Get ALL products, don't filter by deleted_at
+    });
 
-    logger.info("✅ Data reset completed");
+    if (existingProducts.length > 0) {
+      logger.info(`📦 Hard deleting ${existingProducts.length} existing products...`);
+      const productIds = existingProducts.map((p: any) => p.id);
+
+      // Use module service directly for HARD deletion instead of workflow
+      await ctx.productModuleService.deleteProducts(productIds);
+
+      logger.info("  ✅ Products hard deleted from database");
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Verify deletion worked
+      const { data: remainingProducts } = await query.graph({
+        entity: "product",
+        fields: ["id", "title", "handle"],
+      });
+
+      if (remainingProducts.length > 0) {
+        logger.warn(`⚠️ Warning: ${remainingProducts.length} products still exist after hard deletion`);
+        logger.warn(`   Remaining handles: ${remainingProducts.map((p: any) => p.handle).join(", ")}`);
+      } else {
+        logger.info("  ✅ Verified: All products completely removed from database");
+      }
+    } else {
+      logger.info("📦 No existing products found");
+    }
   } catch (error) {
-    logger.warn(
-      "⚠️ Some data cleanup failed (this is normal for fresh databases):",
-      error instanceof Error ? error.message : String(error)
-    );
+    logger.warn("  ⚠️ Could not delete products:", error instanceof Error ? error.message : String(error));
   }
+
+  // Delete all existing inventory items (HARD DELETE)
+  try {
+    const { data: existingInventoryItems } = await query.graph({
+      entity: "inventory_item",
+      fields: ["id", "sku"],
+    });
+
+    if (existingInventoryItems.length > 0) {
+      logger.info(`📦 Hard deleting ${existingInventoryItems.length} existing inventory items...`);
+      const inventoryIds = existingInventoryItems.map((item: any) => item.id);
+
+      // Get inventory module service and delete inventory items
+      const inventoryModuleService = container.resolve(Modules.INVENTORY);
+      await inventoryModuleService.deleteInventoryItems(inventoryIds);
+
+      logger.info("  ✅ Inventory items hard deleted from database");
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } else {
+      logger.info("📦 No existing inventory items found");
+    }
+  } catch (error) {
+    logger.warn("  ⚠️ Could not delete inventory items:", error instanceof Error ? error.message : String(error));
+  }
+
+  // Delete all existing inventory levels (HARD DELETE)
+  try {
+    const { data: existingInventoryLevels } = await query.graph({
+      entity: "inventory_level",
+      fields: ["id", "inventory_item_id", "location_id"],
+    });
+
+    if (existingInventoryLevels.length > 0) {
+      logger.info(`📊 Hard deleting ${existingInventoryLevels.length} existing inventory levels...`);
+      const levelIds = existingInventoryLevels.map((level: any) => level.id);
+
+      // Get inventory module service and delete inventory levels
+      const inventoryModuleService = container.resolve(Modules.INVENTORY);
+      await inventoryModuleService.deleteInventoryLevels(levelIds);
+
+      logger.info("  ✅ Inventory levels hard deleted from database");
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } else {
+      logger.info("📊 No existing inventory levels found");
+    }
+  } catch (error) {
+    logger.warn("  ⚠️ Could not delete inventory levels:", error instanceof Error ? error.message : String(error));
+  }
+
+  // Delete all existing categories (HARD DELETE)
+  try {
+    const { data: existingCategories } = await query.graph({
+      entity: "product_category",
+      fields: ["id", "name"],
+    });
+
+    if (existingCategories.length > 0) {
+      logger.info(`📁 Hard deleting ${existingCategories.length} existing categories...`);
+      const categoryIds = existingCategories.map((c: any) => c.id);
+
+      // Use module service directly for HARD deletion
+      await ctx.productCategoryModuleService.deleteProductCategories(categoryIds);
+
+      logger.info("  ✅ Categories hard deleted from database");
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } else {
+      logger.info("📁 No existing categories found");
+    }
+  } catch (error) {
+    logger.warn("  ⚠️ Could not delete categories:", error instanceof Error ? error.message : String(error));
+  }
+
+  logger.info("✅ Product data reset completed");
 }
 
 async function seedCoreData(ctx: SeedContext) {
@@ -568,10 +639,11 @@ async function seedDemoProducts(ctx: SeedContext, coreData: any) {
   });
   const shippingProfile = shippingProfiles[0];
 
-  // Create demo products (idempotent)
-  let demoProducts;
+  // Create demo products - fresh every time since we reset above
+  logger.info("🔄 Creating fresh demo products...");
+
   try {
-    const { result } = await createProductsWorkflow(container).run({
+    const { result: demoProducts } = await createProductsWorkflow(container).run({
       input: {
         products: [
           {
@@ -658,19 +730,35 @@ async function seedDemoProducts(ctx: SeedContext, coreData: any) {
         ],
       },
     });
-    demoProducts = result;
+
     logger.info("✅ Demo products created");
   } catch (productError) {
-    // If products exist, fetch them
-    const { data: existingProducts } = await query.graph({
-      entity: "product",
-      fields: ["id", "title", "handle"],
-      filters: {
-        handle: ["classic-t-shirt", "wireless-headphones"],
-      },
-    });
-    demoProducts = existingProducts;
-    logger.info("ℹ️ Demo products already exist (using existing)");
+    logger.warn("❌ Failed to create demo products");
+    logger.warn(String(productError));
+
+    // Check if products with these handles still exist
+    try {
+      const { data: conflictingProducts } = await query.graph({
+        entity: "product",
+        fields: ["id", "title", "handle"],
+        filters: {
+          handle: ["classic-t-shirt", "wireless-headphones"],
+        },
+      });
+
+      if (conflictingProducts.length > 0) {
+        logger.warn("🔍 Found conflicting products that weren't properly deleted:");
+        conflictingProducts.forEach((p: any) => {
+          logger.warn(`   - ${p.handle}: ${p.title}`);
+        });
+
+        logger.info("💡 Recommendation: Try running 'pnpm db:reset' for a complete fresh start");
+      }
+    } catch (queryError) {
+      logger.warn("Could not check for conflicting products");
+    }
+
+    throw productError;
   }
 
   logger.info("✅ Demo products seeding completed");
@@ -740,110 +828,98 @@ async function seedRestaurantData(ctx: SeedContext, coreData: any) {
   });
   const shippingProfile = shippingProfiles[0];
 
-  // Create sample restaurant products (idempotent)
-  let restaurantProducts;
-  try {
-    const { result } = await createProductsWorkflow(container).run({
-      input: {
-        products: [
-          {
-            title: "Caesar Salad",
-            category_ids: [restaurantCategories.find((cat: any) => cat.name === "Appetizers")!.id],
-            description: "Fresh romaine lettuce with caesar dressing, parmesan, and croutons",
-            handle: "caesar-salad",
-            weight: 250,
-            status: ProductStatus.PUBLISHED,
-            shipping_profile_id: shippingProfile.id,
-            options: [
-              {
-                title: "Size",
-                values: ["Regular"],
-              },
-            ],
-            variants: [
-              {
-                title: "Regular",
-                sku: "APPETIZER-CAESAR-REG",
-                options: { Size: "Regular" },
-                prices: [
-                  { amount: 1200, currency_code: "eur" },
-                  { amount: 1400, currency_code: "usd" },
-                ],
-              },
-            ],
-            sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-          },
-          {
-            title: "Grilled Salmon",
-            category_ids: [restaurantCategories.find((cat: any) => cat.name === "Main Courses")!.id],
-            description: "Fresh Atlantic salmon with seasonal vegetables",
-            handle: "grilled-salmon",
-            weight: 400,
-            status: ProductStatus.PUBLISHED,
-            shipping_profile_id: shippingProfile.id,
-            options: [
-              {
-                title: "Size",
-                values: ["Regular"],
-              },
-            ],
-            variants: [
-              {
-                title: "Regular",
-                sku: "MAIN-SALMON-REG",
-                options: { Size: "Regular" },
-                prices: [
-                  { amount: 2800, currency_code: "eur" },
-                  { amount: 3200, currency_code: "usd" },
-                ],
-              },
-            ],
-            sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-          },
-          {
-            title: "Classic Mojito",
-            category_ids: [restaurantCategories.find((cat: any) => cat.name === "Cocktails")!.id],
-            description: "White rum, lime juice, sugar, soda water, and fresh mint",
-            handle: "classic-mojito",
-            weight: 300,
-            status: ProductStatus.PUBLISHED,
-            shipping_profile_id: shippingProfile.id,
-            options: [
-              {
-                title: "Size",
-                values: ["Regular"],
-              },
-            ],
-            variants: [
-              {
-                title: "Regular",
-                sku: "COCKTAIL-MOJITO-REG",
-                options: { Size: "Regular" },
-                prices: [
-                  { amount: 1200, currency_code: "eur" },
-                  { amount: 1400, currency_code: "usd" },
-                ],
-              },
-            ],
-            sales_channels: [{ id: coreData.defaultSalesChannel.id }],
-          },
-        ],
-      },
-    });
-    restaurantProducts = result;
-    logger.info("✅ Restaurant products created");
-  } catch (productError) {
-    // If products exist, fetch them
-    const { data: existingProducts } = await query.graph({
-      entity: "product",
-      fields: ["id", "title", "handle"],
-      filters: {
-        handle: ["caesar-salad", "grilled-salmon", "classic-mojito"],
-      },
-    });
-    restaurantProducts = existingProducts;
-    logger.info("ℹ️ Restaurant products already exist (using existing)");
-  }
+  // Create restaurant products - fresh every time since we reset above
+  logger.info("🔄 Creating fresh restaurant products...");
+
+  const { result: restaurantProducts } = await createProductsWorkflow(container).run({
+    input: {
+      products: [
+        {
+          title: "Caesar Salad",
+          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Appetizers")!.id],
+          description: "Fresh romaine lettuce with caesar dressing, parmesan, and croutons",
+          handle: "caesar-salad",
+          weight: 250,
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfile.id,
+          options: [
+            {
+              title: "Size",
+              values: ["Regular"],
+            },
+          ],
+          variants: [
+            {
+              title: "Regular",
+              sku: "APPETIZER-CAESAR-REG",
+              options: { Size: "Regular" },
+              prices: [
+                { amount: 1200, currency_code: "eur" },
+                { amount: 1400, currency_code: "usd" },
+              ],
+            },
+          ],
+          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
+        },
+        {
+          title: "Grilled Salmon",
+          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Main Courses")!.id],
+          description: "Fresh Atlantic salmon with seasonal vegetables",
+          handle: "grilled-salmon",
+          weight: 400,
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfile.id,
+          options: [
+            {
+              title: "Size",
+              values: ["Regular"],
+            },
+          ],
+          variants: [
+            {
+              title: "Regular",
+              sku: "MAIN-SALMON-REG",
+              options: { Size: "Regular" },
+              prices: [
+                { amount: 2800, currency_code: "eur" },
+                { amount: 3200, currency_code: "usd" },
+              ],
+            },
+          ],
+          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
+        },
+        {
+          title: "Classic Mojito",
+          category_ids: [restaurantCategories.find((cat: any) => cat.name === "Cocktails")!.id],
+          description: "White rum, lime juice, sugar, soda water, and fresh mint",
+          handle: "classic-mojito",
+          weight: 300,
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfile.id,
+          options: [
+            {
+              title: "Size",
+              values: ["Regular"],
+            },
+          ],
+          variants: [
+            {
+              title: "Regular",
+              sku: "COCKTAIL-MOJITO-REG",
+              options: { Size: "Regular" },
+              prices: [
+                { amount: 1200, currency_code: "eur" },
+                { amount: 1400, currency_code: "usd" },
+              ],
+            },
+          ],
+          sales_channels: [{ id: coreData.defaultSalesChannel.id }],
+        },
+      ],
+    },
+  });
+
+  logger.info("✅ Restaurant products created");
 
   // Set up inventory levels for all products
   await setupInventory(ctx, coreData.stockLocation);

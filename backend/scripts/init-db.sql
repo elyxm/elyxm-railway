@@ -26,18 +26,20 @@ EXCEPTION WHEN OTHERS THEN
 END
 $$;
 
--- Create additional databases for testing if needed
--- CREATE DATABASE elyxm_test OWNER :"POSTGRES_USER";
+-- Optional: Create a test database (commented out - enable if needed)
+-- CREATE DATABASE elyxm_test OWNER elyxm_admin;
 
 -- Set timezone for the current database
-ALTER DATABASE :"POSTGRES_DB" SET timezone TO 'UTC';
+-- Note: Using hard-coded database name since environment variable substitution doesn't work here
+ALTER DATABASE elyxm_development SET timezone TO 'UTC';
 
 -- Create a schema for the cocktail module (optional - can be done via migrations)
--- CREATE SCHEMA IF NOT EXISTS cocktail AUTHORIZATION :"POSTGRES_USER";
+-- CREATE SCHEMA IF NOT EXISTS cocktail AUTHORIZATION elyxm_admin;
 
 -- Grant necessary permissions to the application user
-GRANT ALL PRIVILEGES ON DATABASE :"POSTGRES_DB" TO :"POSTGRES_USER";
-GRANT ALL PRIVILEGES ON SCHEMA public TO :"POSTGRES_USER";
+-- Note: Using hard-coded names since environment variable substitution doesn't work here
+GRANT ALL PRIVILEGES ON DATABASE elyxm_development TO elyxm_admin;
+GRANT ALL PRIVILEGES ON SCHEMA public TO elyxm_admin;
 
 -- Log completion
-SELECT 'Database initialization completed successfully for ' || :'POSTGRES_DB' as status; 
+SELECT 'Database initialization completed successfully for elyxm_development' as status; 

@@ -14,8 +14,9 @@
   ],
   "scripts": {
     "build": "medusa build && node src/scripts/postBuild.js",
-    "db:seed": "medusa exec ./src/scripts/seed.ts",
-    "db:reset": "pnpm postgres:reset && pnpm ib && pnpm db:seed && pnpm create:admin",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "db:seed": "pnpm seed",
+    "db:reset": "cd .. && pnpm postgres:reset && pnpm postgres:wait && cd backend && pnpm ib && pnpm db:seed && pnpm create:admin",
     "db:migrate": "medusa db:migrate",
     "db:generate:delivery": "medusa db:generate delivery",
     "db:generate:restaurant": "medusa db:generate restaurant",
