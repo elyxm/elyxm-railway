@@ -43,6 +43,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const seedData = seedDataLoader.loadAll();
 
   logger.info(`🌱 Starting seed process with scenario: '${seedDataLoader.getScenario()}'`);
+  logger.info(
+    `📝 Scenario source: SEED_SCENARIO=${process.env.SEED_SCENARIO || "not set"}, NODE_ENV=${
+      process.env.NODE_ENV || "not set"
+    }`
+  );
 
   const ctx: SeedContext = {
     container,
@@ -68,6 +73,25 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
     // Step 3: Seed products from JSON data
     await seedProducts(ctx, coreData, seedData);
+
+    // Final verification - show all API keys
+    logger.info("🔍 Final API key verification:");
+    try {
+      const finalApiKeys = await ctx.apiKeyModuleService.listApiKeys();
+      if (finalApiKeys.length > 0) {
+        finalApiKeys.forEach((key: any) => {
+          logger.info(
+            `  ✓ "${key.title}" (ID: ${key.id}, Type: ${key.type}, Revoked: ${key.revoked_at ? "Yes" : "No"})`
+          );
+        });
+      } else {
+        logger.info("  (No API keys found)");
+      }
+    } catch (verifyError) {
+      logger.warn(
+        `  ⚠️ Could not verify API keys: ${verifyError instanceof Error ? verifyError.message : String(verifyError)}`
+      );
+    }
 
     logger.info("🎉 Seed process completed successfully!");
     logger.info("Admin login: admin@elyxm.local / password (if user exists)");
@@ -118,7 +142,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📦 No existing products found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete products:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete products: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing inventory items (HARD DELETE)
@@ -144,7 +168,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📦 No existing inventory items found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete inventory items:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete inventory items: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing inventory levels (HARD DELETE)
@@ -170,7 +194,7 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📊 No existing inventory levels found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete inventory levels:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete inventory levels: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Delete all existing categories (HARD DELETE)
@@ -195,7 +219,100 @@ async function resetProductData(ctx: SeedContext) {
       logger.info("📁 No existing categories found");
     }
   } catch (error) {
-    logger.warn("  ⚠️ Could not delete categories:", error instanceof Error ? error.message : String(error));
+    logger.warn(`  ⚠️ Could not delete categories: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  // Delete all existing API keys (REVOKE first, then DELETE)
+  try {
+    const existingApiKeys = await ctx.apiKeyModuleService.listApiKeys();
+
+    logger.info(`🔑 Found ${existingApiKeys.length} existing API keys:`);
+    existingApiKeys.forEach((key: any) => {
+      logger.info(`  - "${key.title}" (ID: ${key.id}, Revoked: ${key.revoked_at ? "Yes" : "No"})`);
+    });
+
+    if (existingApiKeys.length > 0) {
+      // First, revoke all non-revoked API keys
+      const nonRevokedKeys = existingApiKeys.filter((key: any) => !key.revoked_at);
+      if (nonRevokedKeys.length > 0) {
+        logger.info(`  🚫 Revoking ${nonRevokedKeys.length} non-revoked API keys...`);
+
+        for (const key of nonRevokedKeys) {
+          try {
+            await ctx.apiKeyModuleService.updateApiKeys({ id: key.id }, { title: key.title, revoked_at: new Date() });
+            logger.info(`    ✓ Revoked: ${key.title}`);
+          } catch (revokeError) {
+            logger.warn(
+              `    ✗ Failed to revoke ${key.title}: ${
+                revokeError instanceof Error ? revokeError.message : String(revokeError)
+              }`
+            );
+            console.error("Full revoke error:", revokeError);
+          }
+        }
+
+        // Wait longer for revocation to be processed and verify
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+
+      // Verify revocation actually worked by reloading API keys
+      logger.info("  🔍 Verifying revocation status...");
+      const reloadedKeys = await ctx.apiKeyModuleService.listApiKeys();
+      const stillNotRevoked = reloadedKeys.filter((key: any) => !key.revoked_at);
+
+      if (stillNotRevoked.length > 0) {
+        logger.warn(`  ⚠️ ${stillNotRevoked.length} API keys still not revoked after update:`);
+        stillNotRevoked.forEach((key: any) => {
+          logger.warn(`    - "${key.title}" (ID: ${key.id})`);
+        });
+      } else {
+        logger.info("  ✅ All API keys successfully revoked");
+      }
+
+      // Only attempt deletion if all keys are actually revoked
+      const revokedKeys = reloadedKeys.filter((key: any) => key.revoked_at);
+
+      if (revokedKeys.length === existingApiKeys.length) {
+        // All keys are revoked, safe to delete
+        logger.info(`  🗑️ Attempting to delete ${revokedKeys.length} revoked API keys...`);
+        const revokedKeyIds = revokedKeys.map((key: any) => key.id);
+
+        try {
+          await ctx.apiKeyModuleService.deleteApiKeys(revokedKeyIds);
+          logger.info("  ✅ API keys successfully deleted from database");
+        } catch (deleteError) {
+          logger.warn(
+            `  ⚠️ Failed to delete API keys: ${
+              deleteError instanceof Error ? deleteError.message : String(deleteError)
+            }`
+          );
+          logger.info("  ℹ️ Skipping API key deletion - existing keys won't interfere with new scenario");
+        }
+      } else {
+        logger.info("  ⏭️ Skipping API key deletion - revocation didn't complete properly");
+        logger.info("  ℹ️ Existing API keys won't interfere with the new scenario");
+      }
+
+      // Wait a moment for deletion to be processed
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Verify deletion
+      const remainingKeys = await ctx.apiKeyModuleService.listApiKeys();
+      if (remainingKeys.length > 0) {
+        logger.warn(`  ⚠️ ${remainingKeys.length} API keys still remain after deletion attempt:`);
+        remainingKeys.forEach((key: any) => {
+          logger.warn(`    - "${key.title}" (ID: ${key.id})`);
+        });
+      } else {
+        logger.info("  ✅ All API keys successfully removed");
+      }
+    } else {
+      logger.info("🔑 No existing API keys found");
+    }
+  } catch (error) {
+    logger.warn(
+      `  ⚠️ General error during API key deletion: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 
   logger.info("✅ Product data reset completed");
@@ -331,26 +448,39 @@ async function seedCoreData(ctx: SeedContext, seedData: SeedDataSet) {
   await setupFulfillment(ctx, container, stockLocation, region, seedData);
 
   // 8. Create publishable API key
+  logger.info(`🔑 Creating API key: "${config.apiKey.title}"`);
+
   const existingApiKeys = await ctx.apiKeyModuleService.listApiKeys({
     title: config.apiKey.title,
   });
 
   let publishableApiKey;
   if (!existingApiKeys.length) {
-    const { result: publishableApiKeyResult } = await createApiKeysWorkflow(container).run({
-      input: {
-        api_keys: [
-          {
-            title: config.apiKey.title,
-            type: config.apiKey.type as any,
-            created_by: "",
-          },
-        ],
-      },
-    });
-    publishableApiKey = publishableApiKeyResult[0];
+    logger.info(`  📝 Creating new API key: "${config.apiKey.title}"`);
+    try {
+      const { result: publishableApiKeyResult } = await createApiKeysWorkflow(container).run({
+        input: {
+          api_keys: [
+            {
+              title: config.apiKey.title,
+              type: config.apiKey.type as any,
+              created_by: "",
+            },
+          ],
+        },
+      });
+      publishableApiKey = publishableApiKeyResult[0];
+      logger.info(`  ✅ API key created: "${publishableApiKey.title}" (ID: ${publishableApiKey.id})`);
+    } catch (apiKeyError) {
+      logger.error(
+        "  ❌ Failed to create API key:",
+        apiKeyError instanceof Error ? apiKeyError.message : String(apiKeyError)
+      );
+      throw apiKeyError;
+    }
   } else {
     publishableApiKey = existingApiKeys[0];
+    logger.info(`  ♻️ Using existing API key: "${publishableApiKey.title}" (ID: ${publishableApiKey.id})`);
   }
 
   // 9. Link sales channel to API key (idempotent)

@@ -113,7 +113,7 @@ export class SeedDataLoader {
  * Get the seed data scenario from environment variable or default
  */
 export function getSeedScenario(): string {
-  const scenario = process.env.SEED_SCENARIO || process.env.NODE_ENV === "test" ? "testing" : "default";
+  const scenario = process.env.SEED_SCENARIO || (process.env.NODE_ENV === "test" ? "testing" : "default");
 
   if (!SeedDataLoader.scenarioExists(scenario)) {
     console.warn(`Seed scenario '${scenario}' not found, falling back to 'default'`);
