@@ -1,13 +1,14 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
-import { INotificationModuleService, IUserModuleService } from "@medusajs/types";
+import { INotificationModuleService } from "@medusajs/types";
 import { Modules } from "@medusajs/utils";
 import { BACKEND_URL } from "../lib/constants";
+import { INVITATION_MODULE, InvitationModuleService } from "../modules";
 import { EmailTemplates } from "../modules/email-notifications/templates";
 
 export default async function userInviteHandler({ event: { data }, container }: SubscriberArgs<any>) {
   const notificationModuleService: INotificationModuleService = container.resolve(Modules.NOTIFICATION);
-  const userModuleService: IUserModuleService = container.resolve(Modules.USER);
-  const invite = await userModuleService.retrieveInvite(data.id);
+  const invitationModuleService: InvitationModuleService = container.resolve(INVITATION_MODULE);
+  const [invite] = await invitationModuleService.listInvitations({ where: { id: data.id } });
 
   try {
     await notificationModuleService.createNotifications({
