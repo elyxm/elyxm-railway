@@ -1,6 +1,15 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { ProductCategory, ProductData, SeedConfig, SeedDataSet, ShippingData } from "./types";
+import {
+  PermissionData,
+  ProductCategory,
+  ProductData,
+  RBACData,
+  RoleData,
+  SeedConfig,
+  SeedDataSet,
+  ShippingData,
+} from "./types";
 
 export class SeedDataLoader {
   private basePath: string;
@@ -57,6 +66,30 @@ export class SeedDataLoader {
   }
 
   /**
+   * Load the permissions file
+   */
+  loadPermissions(): PermissionData[] {
+    return this.loadJsonFile<PermissionData[]>("permissions.json");
+  }
+
+  /**
+   * Load the roles file
+   */
+  loadRoles(): RoleData[] {
+    return this.loadJsonFile<RoleData[]>("roles.json");
+  }
+
+  /**
+   * Load RBAC data (permissions and roles)
+   */
+  loadRBAC(): RBACData {
+    return {
+      permissions: this.loadPermissions(),
+      roles: this.loadRoles(),
+    };
+  }
+
+  /**
    * Load all seed data as a complete dataset
    */
   loadAll(): SeedDataSet {
@@ -65,6 +98,7 @@ export class SeedDataLoader {
       categories: this.loadCategories(),
       products: this.loadProducts(),
       shipping: this.loadShipping(),
+      rbac: this.loadRBAC(),
     };
   }
 

@@ -15,6 +15,7 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { CreateInventoryLevelInput, ExecArgs } from "@medusajs/types";
 import { ContainerRegistrationKeys, Modules, ProductStatus } from "@medusajs/utils";
+import { RBAC_MODULE } from "../modules/rbac";
 import { createSeedDataLoader } from "./seed-data/loader";
 import { ProductData, SeedDataSet } from "./seed-data/types";
 
@@ -31,6 +32,7 @@ interface SeedContext {
   productCategoryModuleService: any;
   regionModuleService: any;
   apiKeyModuleService: any;
+  rbacModuleService: any;
 }
 
 export default async function seedDemoData({ container }: ExecArgs) {
@@ -62,9 +64,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
     productCategoryModuleService: container.resolve(Modules.PRODUCT),
     regionModuleService: container.resolve(Modules.REGION),
     apiKeyModuleService: container.resolve(Modules.API_KEY),
+    rbacModuleService: container.resolve(RBAC_MODULE),
   };
 
   try {
+    // Step 0: Seed RBAC permissions and roles first
+    await seedRBACSystem(ctx, seedData);
+
     // Step 1: Always reset products and categories to ensure idempotency
     await resetProductData(ctx);
 
@@ -93,11 +99,143 @@ export default async function seedDemoData({ container }: ExecArgs) {
       );
     }
 
+    // Final RBAC status
+    await showRBACStatus(ctx);
+
     logger.info("🎉 Seed process completed successfully!");
     logger.info("Admin login: admin@elyxm.local / password (if user exists)");
   } catch (error) {
     console.error("❌ Seed process failed:", error);
     throw error;
+  }
+}
+
+async function seedRBACSystem(ctx: SeedContext, seedData: SeedDataSet) {
+  const { logger, rbacModuleService } = ctx;
+  const { rbac } = seedData;
+
+  logger.info("🔐 Starting RBAC system seeding...");
+
+  try {
+    // Step 1: Reset existing RBAC data for idempotency
+    logger.info("🧹 Resetting RBAC data for idempotency...");
+
+    // Get existing data
+    const existingPermissions = await rbacModuleService.listPermissions({});
+    const existingRoles = await rbacModuleService.listRoles({});
+    const existingRolePermissions = await rbacModuleService.listRolePermissions({});
+    const existingUserRoles = await rbacModuleService.listUserRoles({});
+
+    // Delete existing data in correct order (respecting foreign key constraints)
+    if (existingUserRoles.length > 0) {
+      logger.info(`🗑️ Hard deleting ${existingUserRoles.length} existing user roles...`);
+      const userRoleIds = existingUserRoles.map((ur: any) => ur.id);
+      await rbacModuleService.softDeleteUserRoles(userRoleIds, { force: true });
+      logger.info("  ✅ User roles hard deleted from database");
+    }
+
+    if (existingRolePermissions.length > 0) {
+      logger.info(`🗑️ Hard deleting ${existingRolePermissions.length} existing role permissions...`);
+      const rolePermissionIds = existingRolePermissions.map((rp: any) => rp.id);
+      await rbacModuleService.softDeleteRolePermissions(rolePermissionIds, { force: true });
+      logger.info("  ✅ Role permissions hard deleted from database");
+    }
+
+    if (existingRoles.length > 0) {
+      logger.info(`🗑️ Hard deleting ${existingRoles.length} existing roles...`);
+      const roleIds = existingRoles.map((role: any) => role.id);
+      await rbacModuleService.softDeleteRoles(roleIds, { force: true });
+      logger.info("  ✅ Roles hard deleted from database");
+    }
+
+    if (existingPermissions.length > 0) {
+      logger.info(`🗑️ Hard deleting ${existingPermissions.length} existing permissions...`);
+      const permissionIds = existingPermissions.map((perm: any) => perm.id);
+      await rbacModuleService.softDeletePermissions(permissionIds, { force: true });
+      logger.info("  ✅ Permissions hard deleted from database");
+    }
+
+    logger.info("✅ RBAC data reset completed");
+
+    // Step 2: Seed permissions from JSON data
+    logger.info("📋 Seeding permissions from JSON data...");
+    const seededPermissions = [];
+
+    for (const permissionData of rbac.permissions) {
+      await rbacModuleService.createPermissions(permissionData);
+      seededPermissions.push(permissionData);
+    }
+
+    logger.info(`  ✅ Seeded ${seededPermissions.length} permissions`);
+
+    // Step 3: Seed roles from JSON data
+    logger.info("👥 Seeding roles from JSON data...");
+    const seededRoles = [];
+
+    for (const roleData of rbac.roles) {
+      // Create the role first
+      const role = await rbacModuleService.createRoles({
+        name: roleData.name,
+        slug: roleData.slug,
+        description: roleData.description,
+        scope_type: roleData.scope_type,
+        is_global: roleData.is_global,
+      });
+
+      // Assign permissions to role
+      for (const permissionSlug of roleData.permissions) {
+        const permissions = await rbacModuleService.listPermissions({ slug: permissionSlug });
+        if (permissions.length > 0) {
+          await rbacModuleService.createRolePermissions({
+            role_id: role.id,
+            permission_id: permissions[0].id,
+          });
+        }
+      }
+
+      seededRoles.push(roleData);
+      logger.info(`    ✓ Created role: ${roleData.name}`);
+    }
+
+    logger.info(`  ✅ Seeded ${seededRoles.length} roles`);
+
+    // Step 4: Get final summary
+    const finalPermissions = await rbacModuleService.listPermissions({});
+    const finalRoles = await rbacModuleService.listRoles({});
+    const platformRoles = finalRoles.filter((role: any) => role.is_global).length;
+    const clientRoles = finalRoles.filter((role: any) => !role.is_global).length;
+
+    logger.info(`✅ RBAC seeding completed:`);
+    logger.info(`   • ${finalPermissions.length} permissions`);
+    logger.info(`   • ${finalRoles.length} roles (${platformRoles} platform, ${clientRoles} client)`);
+  } catch (error) {
+    logger.warn(`⚠️ RBAC seeding failed: ${error instanceof Error ? error.message : String(error)}`);
+    logger.info("ℹ️ Continuing with product seeding...");
+  }
+}
+
+async function showRBACStatus(ctx: SeedContext) {
+  const { logger, rbacModuleService } = ctx;
+
+  logger.info("🔐 Final RBAC system status:");
+  try {
+    const permissions = await rbacModuleService.listPermissions({});
+    const roles = await rbacModuleService.listRoles({});
+    const platformRoles = roles.filter((role: any) => role.is_global).length;
+    const clientRoles = roles.filter((role: any) => !role.is_global).length;
+
+    logger.info(`   📋 ${permissions.length} permissions seeded`);
+    logger.info(`   🎭 ${roles.length} roles available:`);
+
+    for (const role of roles) {
+      const rolePermissions = await rbacModuleService.listRolePermissions({ role_id: role.id });
+      const scopeLabel = role.is_global ? "Global" : "Client";
+      logger.info(`     • ${role.name} (${scopeLabel}): ${rolePermissions.length} permissions`);
+    }
+
+    logger.info("ℹ️ RBAC system ready for user assignment");
+  } catch (error) {
+    logger.warn(`⚠️ Could not verify RBAC status: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

@@ -135,4 +135,8 @@ export const CACHE_CONFIGS = {
     versionKey: "cache:inventory:version",
     keyPrefix: "cache:inventory",
   },
+  RESTAURANTS: {
+    versionKey: "cache:restaurants:version",
+    keyPrefix: "cache:restaurants",
+  },
 } as const;

@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Platform Super Admin",
+    "slug": "platform-super-admin",
+    "description": "Full platform access with all permissions",
+    "scope_type": "global",
+    "is_global": true,
+    "permissions": [
+      "client:manage",
+      "role:manage",
+      "user:manage",
+      "cocktail:manage",
+      "ingredient:manage",
+      "cocktail:assign",
+      "ingredient:assign",
+      "restaurant:manage"
+    ]
+  },
+  {
+    "name": "Platform Admin",
+    "slug": "platform-admin",
+    "description": "Platform administration with limited permissions",
+    "scope_type": "global",
+    "is_global": true,
+    "permissions": [
+      "client:read",
+      "client:update",
+      "cocktail:manage",
+      "ingredient:manage",
+      "cocktail:assign",
+      "cocktail:read",
+      "user:read",
+      "restaurant:read"
+    ]
+  },
+  {
+    "name": "Client Admin",
+    "slug": "client-admin",
+    "description": "Client administration for managing their own resources",
+    "scope_type": "client",
+    "is_global": false,
+    "permissions": [
+      "cocktail:manage",
+      "ingredient:manage",
+      "user:read",
+      "user:assign",
+      "restaurant:read",
+      "restaurant:assign"
+    ]
+  },
+  {
+    "name": "Restaurant Manager",
+    "slug": "restaurant-manager",
+    "description": "Restaurant-level management with limited cocktail access",
+    "scope_type": "client",
+    "is_global": false,
+    "permissions": [
+      "cocktail:read",
+      "cocktail:create",
+      "cocktail:update",
+      "ingredient:read",
+      "ingredient:create",
+      "restaurant:read"
+    ]
+  },
+  {
+    "name": "Recipe Creator",
+    "slug": "recipe-creator",
+    "description": "Can create and manage recipes within client scope",
+    "scope_type": "client",
+    "is_global": false,
+    "permissions": ["cocktail:create", "cocktail:read", "cocktail:update", "ingredient:read", "ingredient:create"]
+  },
+  {
+    "name": "Recipe Viewer",
+    "slug": "recipe-viewer",
+    "description": "Read-only access to recipes and ingredients",
+    "scope_type": "client",
+    "is_global": false,
+    "permissions": ["cocktail:read", "ingredient:read"]
+  }
+]

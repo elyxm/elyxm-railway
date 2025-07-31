@@ -102,9 +102,33 @@ export interface ShippingData {
   shippingOptions: ShippingOption[];
 }
 
+// RBAC Types for seeding
+export interface PermissionData {
+  name: string;
+  slug: string;
+  resource: string;
+  action: string;
+  description?: string;
+}
+
+export interface RoleData {
+  name: string;
+  slug: string;
+  description: string;
+  scope_type: "global" | "client";
+  is_global: boolean;
+  permissions: string[]; // Array of permission slugs
+}
+
+export interface RBACData {
+  permissions: PermissionData[];
+  roles: RoleData[];
+}
+
 export interface SeedDataSet {
   config: SeedConfig;
   categories: ProductCategory[];
   products: ProductData[];
   shipping: ShippingData;
+  rbac: RBACData;
 }

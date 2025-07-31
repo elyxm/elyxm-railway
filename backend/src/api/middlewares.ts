@@ -5,12 +5,12 @@ import {
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http";
-import { HttpTypes } from "@medusajs/types";
 import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
 import { Request } from "express";
 import { CACHE_CONFIGS } from "../lib/constants";
 import { createCacheHelper } from "./utils/cache-helper";
 
+// Legacy middleware for restaurant/driver access
 const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
   const { restaurant_id, driver_id } = req.auth_context?.app_metadata ?? {};
 
@@ -30,46 +30,51 @@ const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
 
 export default defineMiddlewares({
   routes: [
+    // Global admin authentication middleware
     {
-      matcher: "/store/products", // ℹ️ The core API route we want to cache
-      method: "GET",
+      matcher: "/admin/**",
+      middlewares: [authenticate("user", ["session", "bearer", "api-key"])],
+    },
+
+    // Legacy routes with cache handling
+    {
+      matcher: "/admin/restaurants*",
       middlewares: [
         async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
-          const cacheService = req.scope.resolve(ModuleRegistrationName.CACHE);
-          const logger = req.scope.resolve("logger");
-
-          // Create cache helper for products
-          const productCacheHelper = createCacheHelper(cacheService, CACHE_CONFIGS.PRODUCTS, { logger });
-
-          // Try to get cached response based on query parameters
-          const cachedProducts = await productCacheHelper.getByQuery<HttpTypes.StoreProductListResponse>(
-            req.query || {}
+          const cacheService = createCacheHelper(
+            req.scope.resolve(ModuleRegistrationName.CACHE),
+            CACHE_CONFIGS.RESTAURANTS
           );
 
-          if (cachedProducts) {
-            const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
-            productCacheHelper.logCacheResult(true, cacheKey);
-            res.json(cachedProducts);
-            return;
+          res.locals.cacheService = cacheService;
+
+          if (req.method === "GET") {
+            const cached = await cacheService.get(req.url);
+            if (cached) {
+              return res.json(cached);
+            }
           }
-
-          // Cache miss - log and set up response caching
-          const cacheKey = await productCacheHelper.generateQueryCacheKey(req.query || {});
-          productCacheHelper.logCacheResult(false, cacheKey);
-
-          const originalJsonFn = res.json;
-          Object.assign(res, {
-            json: async function (body: HttpTypes.StoreProductListResponse) {
-              // Cache the response using query parameters
-              await productCacheHelper.setByQuery(req.query || {}, body);
-              await originalJsonFn.call(res, body);
-            },
-          });
 
           next();
         },
       ],
     },
+    {
+      matcher: "/admin/restaurants*",
+      middlewares: [
+        async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+          const cacheService = res.locals.cacheService;
+
+          if (req.method !== "GET") {
+            await cacheService.invalidate();
+          }
+
+          next();
+        },
+      ],
+    },
+
+    // Test routes
     {
       matcher: "/test*",
       middlewares: [
@@ -80,12 +85,10 @@ export default defineMiddlewares({
           next();
         },
         authenticate("user", ["session", "bearer", "api-key"]),
-        // authenticate(["restaurant", "admin"], "bearer", {
-        //   allowUnauthenticated: true,
-        // }),
-        // isAllowed,
       ],
     },
+
+    // Legacy store routes (driver/restaurant)
     {
       method: ["GET"],
       matcher: "/store/users/me",
@@ -110,6 +113,7 @@ export default defineMiddlewares({
       middlewares: [authenticate(["restaurant", "admin"], "bearer")],
     },
   ],
+
   errorHandler: (error: Error, req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
     let statusCode = 500;
     let message = "An unknown error occurred";
