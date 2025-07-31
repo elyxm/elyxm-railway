@@ -1,0 +1,136 @@
+[
+  {
+    "title": "Caesar Salad",
+    "category_name": "Appetizers",
+    "description": "Fresh romaine lettuce with caesar dressing, parmesan, and croutons",
+    "handle": "caesar-salad",
+    "weight": 250,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Regular"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Regular",
+        "sku": "APPETIZER-CAESAR-REG",
+        "options": { "Size": "Regular" },
+        "prices": [
+          { "amount": 1200, "currency_code": "eur" },
+          { "amount": 1400, "currency_code": "usd" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Grilled Salmon",
+    "category_name": "Main Courses",
+    "description": "Fresh Atlantic salmon with seasonal vegetables",
+    "handle": "grilled-salmon",
+    "weight": 400,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Regular"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Regular",
+        "sku": "MAIN-SALMON-REG",
+        "options": { "Size": "Regular" },
+        "prices": [
+          { "amount": 2800, "currency_code": "eur" },
+          { "amount": 3200, "currency_code": "usd" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Classic Mojito",
+    "category_name": "Cocktails",
+    "description": "White rum, lime juice, sugar, soda water, and fresh mint",
+    "handle": "classic-mojito",
+    "weight": 300,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Regular"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Regular",
+        "sku": "COCKTAIL-MOJITO-REG",
+        "options": { "Size": "Regular" },
+        "prices": [
+          { "amount": 1200, "currency_code": "eur" },
+          { "amount": 1400, "currency_code": "usd" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Chocolate Lava Cake",
+    "category_name": "Desserts",
+    "description": "Warm chocolate cake with molten chocolate center and vanilla ice cream",
+    "handle": "chocolate-lava-cake",
+    "weight": 200,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Regular"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Regular",
+        "sku": "DESSERT-CHOC-LAVA-REG",
+        "options": { "Size": "Regular" },
+        "prices": [
+          { "amount": 850, "currency_code": "eur" },
+          { "amount": 950, "currency_code": "usd" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Fresh Orange Juice",
+    "category_name": "Beverages",
+    "description": "Freshly squeezed orange juice",
+    "handle": "fresh-orange-juice",
+    "weight": 250,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Small", "Large"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Small",
+        "sku": "BEVERAGE-OJ-SMALL",
+        "options": { "Size": "Small" },
+        "prices": [
+          { "amount": 450, "currency_code": "eur" },
+          { "amount": 500, "currency_code": "usd" }
+        ]
+      },
+      {
+        "title": "Large",
+        "sku": "BEVERAGE-OJ-LARGE",
+        "options": { "Size": "Large" },
+        "prices": [
+          { "amount": 650, "currency_code": "eur" },
+          { "amount": 750, "currency_code": "usd" }
+        ]
+      }
+    ]
+  }
+]

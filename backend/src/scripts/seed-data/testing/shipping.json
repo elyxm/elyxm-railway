@@ -1,0 +1,40 @@
+{
+  "fulfillmentSet": {
+    "name": "Test Delivery",
+    "type": "shipping"
+  },
+  "shippingProfile": {
+    "name": "Test Shipping Profile",
+    "type": "default"
+  },
+  "shippingOptions": [
+    {
+      "name": "Test Shipping",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Test",
+        "description": "Test shipping option.",
+        "code": "test"
+      },
+      "prices": [
+        {
+          "currency_code": "eur",
+          "amount": 5
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    }
+  ]
+}

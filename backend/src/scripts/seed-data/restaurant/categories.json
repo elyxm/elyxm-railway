@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Appetizers",
+    "description": "Starters and small plates",
+    "is_active": true
+  },
+  {
+    "name": "Main Courses",
+    "description": "Primary dishes and entrees",
+    "is_active": true
+  },
+  {
+    "name": "Desserts",
+    "description": "Sweet treats and desserts",
+    "is_active": true
+  },
+  {
+    "name": "Beverages",
+    "description": "Drinks and beverages",
+    "is_active": true
+  },
+  {
+    "name": "Cocktails",
+    "description": "Alcoholic cocktails and mixed drinks",
+    "is_active": true
+  }
+]

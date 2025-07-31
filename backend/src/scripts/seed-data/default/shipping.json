@@ -1,0 +1,76 @@
+{
+  "fulfillmentSet": {
+    "name": "Main Warehouse Delivery",
+    "type": "shipping"
+  },
+  "shippingProfile": {
+    "name": "Default Shipping Profile",
+    "type": "default"
+  },
+  "shippingOptions": [
+    {
+      "name": "Standard Shipping",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Standard",
+        "description": "Ship in 2-3 days.",
+        "code": "standard"
+      },
+      "prices": [
+        {
+          "currency_code": "usd",
+          "amount": 10
+        },
+        {
+          "currency_code": "eur",
+          "amount": 10
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    },
+    {
+      "name": "Express Shipping",
+      "price_type": "flat",
+      "provider_id": "manual_manual",
+      "type": {
+        "label": "Express",
+        "description": "Ship in 24 hours.",
+        "code": "express"
+      },
+      "prices": [
+        {
+          "currency_code": "usd",
+          "amount": 25
+        },
+        {
+          "currency_code": "eur",
+          "amount": 20
+        }
+      ],
+      "rules": [
+        {
+          "attribute": "enabled_in_store",
+          "value": "true",
+          "operator": "eq"
+        },
+        {
+          "attribute": "is_return",
+          "value": "false",
+          "operator": "eq"
+        }
+      ]
+    }
+  ]
+}

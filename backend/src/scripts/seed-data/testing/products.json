@@ -1,0 +1,24 @@
+[
+  {
+    "title": "Test Product",
+    "category_name": "Test Category",
+    "description": "A simple test product",
+    "handle": "test-product",
+    "weight": 100,
+    "status": "published",
+    "options": [
+      {
+        "title": "Size",
+        "values": ["Standard"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Standard",
+        "sku": "TEST-001",
+        "options": { "Size": "Standard" },
+        "prices": [{ "amount": 1000, "currency_code": "eur" }]
+      }
+    ]
+  }
+]

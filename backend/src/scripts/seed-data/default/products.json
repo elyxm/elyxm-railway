@@ -1,0 +1,79 @@
+[
+  {
+    "title": "Classic T-Shirt",
+    "category_name": "Clothing",
+    "description": "A comfortable and stylish classic t-shirt made from premium cotton.",
+    "handle": "classic-t-shirt",
+    "weight": 200,
+    "status": "published",
+    "images": [
+      {
+        "url": "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png"
+      }
+    ],
+    "options": [
+      {
+        "title": "Size",
+        "values": ["S", "M", "L", "XL"]
+      },
+      {
+        "title": "Color",
+        "values": ["Black", "White", "Gray"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "S / Black",
+        "sku": "TSHIRT-S-BLACK",
+        "options": { "Size": "S", "Color": "Black" },
+        "prices": [
+          { "amount": 1999, "currency_code": "eur" },
+          { "amount": 2199, "currency_code": "usd" }
+        ]
+      },
+      {
+        "title": "M / Black",
+        "sku": "TSHIRT-M-BLACK",
+        "options": { "Size": "M", "Color": "Black" },
+        "prices": [
+          { "amount": 1999, "currency_code": "eur" },
+          { "amount": 2199, "currency_code": "usd" }
+        ]
+      },
+      {
+        "title": "L / Black",
+        "sku": "TSHIRT-L-BLACK",
+        "options": { "Size": "L", "Color": "Black" },
+        "prices": [
+          { "amount": 1999, "currency_code": "eur" },
+          { "amount": 2199, "currency_code": "usd" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Wireless Headphones",
+    "category_name": "Electronics",
+    "description": "High-quality wireless headphones with noise cancellation.",
+    "handle": "wireless-headphones",
+    "weight": 300,
+    "status": "published",
+    "options": [
+      {
+        "title": "Style",
+        "values": ["Standard"]
+      }
+    ],
+    "variants": [
+      {
+        "title": "Standard",
+        "sku": "HEADPHONES-WL-001",
+        "options": { "Style": "Standard" },
+        "prices": [
+          { "amount": 12999, "currency_code": "eur" },
+          { "amount": 14999, "currency_code": "usd" }
+        ]
+      }
+    ]
+  }
+]
