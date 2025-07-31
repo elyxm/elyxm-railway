@@ -125,10 +125,20 @@ export interface RBACData {
   roles: RoleData[];
 }
 
+export interface ClientData {
+  name: string;
+  slug: string;
+  plan_type: "basic" | "premium" | "enterprise";
+  max_restaurants: number;
+  max_custom_recipes: number;
+  settings?: Record<string, any>;
+}
+
 export interface SeedDataSet {
   config: SeedConfig;
   categories: ProductCategory[];
   products: ProductData[];
   shipping: ShippingData;
   rbac: RBACData;
+  clients: ClientData[];
 }

@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Downtown Bar & Grill",
+    "slug": "downtown-bar-grill",
+    "plan_type": "premium",
+    "max_restaurants": 3,
+    "max_custom_recipes": 50,
+    "settings": {
+      "theme": "dark",
+      "notifications_enabled": true
+    }
+  },
+  {
+    "name": "Craft Cocktail Lounge",
+    "slug": "craft-cocktail-lounge",
+    "plan_type": "enterprise",
+    "max_restaurants": 10,
+    "max_custom_recipes": 200,
+    "settings": {
+      "theme": "light",
+      "notifications_enabled": true,
+      "analytics_enabled": true
+    }
+  },
+  {
+    "name": "Neighborhood Pub",
+    "slug": "neighborhood-pub",
+    "plan_type": "basic",
+    "max_restaurants": 1,
+    "max_custom_recipes": 20,
+    "settings": {
+      "theme": "default",
+      "notifications_enabled": false
+    }
+  }
+]

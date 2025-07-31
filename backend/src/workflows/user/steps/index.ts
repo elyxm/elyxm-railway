@@ -1,7 +1,19 @@
-import createUserStepId from "./create-user";
-import updateUserStepId from "./update-user";
+import acceptInvitationStepId from "./accept-invitation";
+import createAuthIdentityStepId from "./create-auth-identity";
+import createInvitationStepId from "./create-invitation";
+import createUserAccountStepId from "./create-user-account";
+import validateInvitationStepId from "./validate-invitation";
 
-export { createUserStepId, updateUserStepId };
+export {
+  acceptInvitationStepId,
+  createAuthIdentityStepId,
+  createInvitationStepId,
+  createUserAccountStepId,
+  validateInvitationStepId,
+};
 
-export { default as createUserStep } from "./create-user";
-export { default as updateUserStep } from "./update-user";
+export { default as acceptInvitationStep } from "./accept-invitation";
+export { default as createAuthIdentityStep } from "./create-auth-identity";
+export { default as createInvitationStep } from "./create-invitation";
+export { default as createUserAccountStep } from "./create-user-account";
+export { default as validateInvitationStep } from "./validate-invitation";

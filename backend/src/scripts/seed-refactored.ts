@@ -15,6 +15,7 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { CreateInventoryLevelInput, ExecArgs } from "@medusajs/types";
 import { ContainerRegistrationKeys, Modules, ProductStatus } from "@medusajs/utils";
+import { CLIENT_MODULE } from "../modules/client";
 import { RBAC_MODULE } from "../modules/rbac";
 import { createSeedDataLoader } from "./seed-data/loader";
 import { ProductData, SeedDataSet } from "./seed-data/types";
@@ -33,6 +34,7 @@ interface SeedContext {
   regionModuleService: any;
   apiKeyModuleService: any;
   rbacModuleService: any;
+  clientModuleService: any;
 }
 
 export default async function seedDemoData({ container }: ExecArgs) {
@@ -65,11 +67,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
     regionModuleService: container.resolve(Modules.REGION),
     apiKeyModuleService: container.resolve(Modules.API_KEY),
     rbacModuleService: container.resolve(RBAC_MODULE),
+    clientModuleService: container.resolve(CLIENT_MODULE),
   };
 
   try {
     // Step 0: Seed RBAC permissions and roles first
     await seedRBACSystem(ctx, seedData);
+
+    // Step 0.5: Seed clients
+    await seedClients(ctx, seedData);
 
     // Step 1: Always reset products and categories to ensure idempotency
     await resetProductData(ctx);
@@ -236,6 +242,49 @@ async function showRBACStatus(ctx: SeedContext) {
     logger.info("ℹ️ RBAC system ready for user assignment");
   } catch (error) {
     logger.warn(`⚠️ Could not verify RBAC status: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+async function seedClients(ctx: SeedContext, seedData: SeedDataSet) {
+  const { logger, clientModuleService } = ctx;
+  const { clients } = seedData;
+
+  logger.info("🏢 Starting client seeding...");
+
+  try {
+    // Reset existing clients for idempotency
+    logger.info("🧹 Resetting existing clients for idempotency...");
+    const existingClients = await clientModuleService.listClients({});
+
+    if (existingClients.length > 0) {
+      logger.info(`🗑️ Hard deleting ${existingClients.length} existing clients...`);
+      const clientIds = existingClients.map((client: any) => client.id);
+      await clientModuleService.softDeleteClients(clientIds, { force: true });
+      logger.info("  ✅ Clients hard deleted from database");
+    }
+
+    // Seed clients from JSON data
+    logger.info("📋 Seeding clients from JSON data...");
+    const seededClients = [];
+
+    for (const clientData of clients) {
+      const client = await clientModuleService.createClients({
+        name: clientData.name,
+        slug: clientData.slug,
+        plan_type: clientData.plan_type,
+        max_restaurants: clientData.max_restaurants,
+        max_custom_recipes: clientData.max_custom_recipes,
+        settings: clientData.settings || {},
+      });
+
+      seededClients.push(client);
+      logger.info(`    ✓ Created client: ${clientData.name} (${clientData.plan_type})`);
+    }
+
+    logger.info(`✅ Client seeding completed: ${seededClients.length} clients created`);
+  } catch (error) {
+    logger.warn(`⚠️ Client seeding failed: ${error instanceof Error ? error.message : String(error)}`);
+    logger.info("ℹ️ Continuing with other seeding...");
   }
 }
 

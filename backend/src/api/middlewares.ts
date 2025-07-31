@@ -8,6 +8,7 @@ import {
 import { MedusaError, ModuleRegistrationName } from "@medusajs/utils";
 import { Request } from "express";
 import { CACHE_CONFIGS } from "../lib/constants";
+import { createCustomAuthMiddleware } from "./utils/auth-helper";
 import { createCacheHelper } from "./utils/cache-helper";
 
 // Legacy middleware for restaurant/driver access
@@ -30,6 +31,24 @@ const isAllowed = (req: any, res: MedusaResponse, next: MedusaNextFunction) => {
 
 export default defineMiddlewares({
   routes: [
+    // Admin routes (admin authentication required)
+    {
+      matcher: "/custom/admin/**",
+      middlewares: [createCustomAuthMiddleware()],
+    },
+
+    // Client routes (client authentication required)
+    {
+      matcher: "/custom/client/**",
+      middlewares: [createCustomAuthMiddleware()],
+    },
+
+    // User routes (user authentication required)
+    {
+      matcher: "/custom/user/**",
+      middlewares: [createCustomAuthMiddleware()],
+    },
+
     // Global admin authentication middleware
     {
       matcher: "/admin/**",
