@@ -7,6 +7,7 @@ export default Module(RBAC_MODULE, {
   service: RbacModuleService,
 });
 
+export * from "./models";
 export * from "./types";
 
 export { default as RbacModuleService } from "./service";
