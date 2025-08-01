@@ -1,0 +1,92 @@
+import { ActionType, PermissionDTO, ResourceType, RoleDTO, ScopeType } from "../../modules/rbac/types/common";
+
+const now = new Date();
+
+export const mockPermissions: PermissionDTO[] = [
+  {
+    id: "1",
+    name: "Create Products",
+    slug: "cocktail:create",
+    resource: ResourceType.COCKTAIL,
+    action: ActionType.CREATE,
+    description: "Create products",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "2",
+    name: "Update Products",
+    slug: "cocktail:update",
+    resource: ResourceType.COCKTAIL,
+    action: ActionType.UPDATE,
+    description: "Update products",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "3",
+    name: "Delete Products",
+    slug: "cocktail:delete",
+    resource: ResourceType.COCKTAIL,
+    action: ActionType.DELETE,
+    description: "Delete products",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "4",
+    name: "View Orders",
+    slug: "restaurant:read",
+    resource: ResourceType.RESTAURANT,
+    action: ActionType.READ,
+    description: "View orders",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "5",
+    name: "Process Orders",
+    slug: "restaurant:manage",
+    resource: ResourceType.RESTAURANT,
+    action: ActionType.MANAGE,
+    description: "Process orders",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+export const mockRoles: RoleDTO[] = [
+  {
+    id: "1",
+    name: "Admin",
+    slug: "admin",
+    description: "Full system access",
+    scope_type: ScopeType.GLOBAL,
+    is_global: true,
+    permissions: mockPermissions.map((permission) => ({ permission })),
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "2",
+    name: "Manager",
+    slug: "manager",
+    description: "Store management access",
+    scope_type: ScopeType.GLOBAL,
+    is_global: true,
+    permissions: mockPermissions.slice(0, 3).map((permission) => ({ permission })),
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "3",
+    name: "Staff",
+    slug: "staff",
+    description: "Basic staff access",
+    scope_type: ScopeType.GLOBAL,
+    is_global: true,
+    permissions: mockPermissions.slice(3, 5).map((permission) => ({ permission })),
+    created_at: now,
+    updated_at: now,
+  },
+];
